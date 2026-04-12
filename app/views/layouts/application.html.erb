@@ -24,8 +24,9 @@
   </head>
 
   <body>
-    <nav class="navbar">
-      <div class="container">
+    <% unless devise_controller? %>
+      <nav class="navbar">
+      <div class="navbar-content">
         <%= link_to 'Rotagily', root_path, class: 'brand-logo' %>
         <div class="nav-links">
           <% if user_signed_in? %>
@@ -36,14 +37,81 @@
             <% end %>
             <%= button_to 'Sair', destroy_user_session_path, method: :delete, class: 'btn btn-logout' %>
           <% else %>
-            <%= link_to 'Login da Equipe', new_user_session_path, class: 'btn btn-login' %>
+            <button class="btn btn-login" onclick="openModal('modal-entrar')">Entrar</button>
+            <button class="btn btn-primary" style="margin-left: 10px;" onclick="openModal('modal-criar-conta')">Criar Conta</button>
           <% end %>
         </div>
       </div>
     </nav>
+    <% end %>
 
-    <main class="main-content">
+    <main class="main-content" style="<%= 'padding: 0; margin: 0;' if devise_controller? %>">
       <%= yield %>
     </main>
+
+    <!-- Overlay e JS para fechar os modais -->
+    <div id="modal-overlay" class="modal-overlay" onclick="closeAllModals()"></div>
+
+    <!-- Modal Entrar -->
+    <div id="modal-entrar" class="side-modal">
+      <div class="modal-header">
+        <h3>O que você deseja fazer?</h3>
+        <button class="close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+      
+      <%= link_to new_user_session_path, class: 'modal-card' do %>
+        <div class="modal-card-content">
+          <h4>Login para envios</h4>
+          <span class="modal-card-btn">Entrar</span>
+        </div>
+        <div style="font-size: 2rem;">📦</div>
+      <% end %>
+
+      <%= link_to new_user_session_path, class: 'modal-card' do %>
+        <div class="modal-card-content">
+          <h4>Login para motoristas</h4>
+          <span class="modal-card-btn">Entrar</span>
+        </div>
+        <div style="font-size: 2rem;">🚚</div>
+      <% end %>
+    </div>
+
+    <!-- Modal Criar Conta -->
+    <div id="modal-criar-conta" class="side-modal">
+      <div class="modal-header">
+        <h3>O que você deseja fazer?</h3>
+        <button class="close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+      
+      <%= link_to new_user_registration_path(cargo: 'cliente'), class: 'modal-card' do %>
+        <div class="modal-card-content">
+          <h4>Quero enviar pacotes</h4>
+          <span class="modal-card-btn">Criar Conta</span>
+        </div>
+        <div style="font-size: 2rem;">📦</div>
+      <% end %>
+
+      <%= link_to new_user_registration_path(cargo: 'motorista'), class: 'modal-card' do %>
+        <div class="modal-card-content">
+          <h4>Quero ser entregador</h4>
+          <span class="modal-card-btn">Criar Conta</span>
+        </div>
+        <div style="font-size: 2rem;">🏍️</div>
+      <% end %>
+    </div>
+
+    <script>
+      function openModal(id) {
+        closeAllModals();
+        document.getElementById(id).classList.add('active');
+        document.getElementById('modal-overlay').classList.add('active');
+      }
+
+      function closeAllModals() {
+        document.querySelectorAll('.side-modal.active, .modal-overlay.active').forEach(function(el) {
+          el.classList.remove('active');
+        });
+      }
+    </script>
   </body>
 </html>
