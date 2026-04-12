@@ -1,10 +1,159 @@
 /*
  * This is a manifest file that'll be compiled into application.css.
  *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
+ * It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS
+ * files in this directory.
  *
- * Consider organizing styles into separate files for maintainability.
+ *= require_tree .
+ *= require_self
  */
+
+:root {
+  --primary-color: #0056b3;
+  --secondary-color: #f8f9fa;
+  --text-color: #333;
+  --bg-color: #e9ecef;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.hero {
+  background: linear-gradient(135deg, #0056b3 0%, #00d2ff 100%);
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+}
+
+.tracking-form {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.tracking-input {
+  padding: 15px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+  width: 300px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn {
+  padding: 15px 30px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: #ff9900;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #e68a00;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.highlight {
+  color: #0056b3;
+}
+
+.navbar {
+  background-color: white;
+  padding: 15px 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand-logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0056b3;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-item {
+  color: #555;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  color: #00d2ff;
+}
+
+.btn-login {
+  background-color: transparent;
+  color: #0056b3;
+  border: 1px solid #0056b3;
+  padding: 8px 15px;
+}
+
+.btn-login:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+.btn-logout {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 15px;
+}
+
+.user-greeting {
+  font-size: 0.9rem;
+  color: #666;
+}

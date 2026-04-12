@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  root 'tracking#index'
+  post 'tracking/search', to: 'tracking#search', as: 'tracking_search'
+
+  resources :packages
+  resources :vehicles
   devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

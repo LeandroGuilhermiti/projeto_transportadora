@@ -1,0 +1,21 @@
+<div class="container mt-5">
+  <div class="card search-result-card">
+    <% if @package %>
+      <h2>Status da sua Encomenda: <span class="highlight"><%= @package.status || "Pendente" %></span></h2>
+      <p><strong>Código:</strong> <%= @package.codigo_rastreio %></p>
+      <p><strong>Destinatário:</strong> <%= @package.destinatario %></p>
+      <p><strong>Endereço de Entrega:</strong> <%= @package.endereco %></p>
+      <p><strong>Peso:</strong> <%= @package.peso %> kg</p>
+      
+      <% if @package.driver %>
+        <p><strong>Motorista Responsável:</strong> <%= @package.driver.nome %></p>
+      <% end %>
+      
+      <%= link_to 'Fazer nova consulta', root_path, class: 'btn btn-secondary mt-3' %>
+    <% else %>
+      <h2>Pacote não encontrado</h2>
+      <p>Não encontramos nenhum pacote com o código informado. Verifique se digitou corretamente.</p>
+      <%= link_to 'Voltar', root_path, class: 'btn btn-secondary mt-3' %>
+    <% end %>
+  </div>
+</div>

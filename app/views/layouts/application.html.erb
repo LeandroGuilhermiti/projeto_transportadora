@@ -24,6 +24,26 @@
   </head>
 
   <body>
-    <%= yield %>
+    <nav class="navbar">
+      <div class="container">
+        <%= link_to 'Rotagily', root_path, class: 'brand-logo' %>
+        <div class="nav-links">
+          <% if user_signed_in? %>
+            <span class="user-greeting">Olá, <%= current_user.nome %> (<%= current_user.cargo.capitalize %>)</span>
+            <%= link_to 'Pacotes', packages_path, class: 'nav-item' %>
+            <% if current_user.admin? %>
+              <%= link_to 'Veículos', vehicles_path, class: 'nav-item' %>
+            <% end %>
+            <%= button_to 'Sair', destroy_user_session_path, method: :delete, class: 'btn btn-logout' %>
+          <% else %>
+            <%= link_to 'Login da Equipe', new_user_session_path, class: 'btn btn-login' %>
+          <% end %>
+        </div>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <%= yield %>
+    </main>
   </body>
 </html>

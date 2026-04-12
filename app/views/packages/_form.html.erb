@@ -1,0 +1,52 @@
+<%= form_with(model: package) do |form| %>
+  <% if package.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(package.errors.count, "error") %> prohibited this package from being saved:</h2>
+
+      <ul>
+        <% package.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :codigo_rastreio, style: "display: block" %>
+    <%= form.text_field :codigo_rastreio %>
+  </div>
+
+  <div>
+    <%= form.label :destinatario, style: "display: block" %>
+    <%= form.text_field :destinatario %>
+  </div>
+
+  <div>
+    <%= form.label :endereco, style: "display: block" %>
+    <%= form.textarea :endereco %>
+  </div>
+
+  <div>
+    <%= form.label :status, style: "display: block" %>
+    <%= form.text_field :status %>
+  </div>
+
+  <div>
+    <%= form.label :peso, style: "display: block" %>
+    <%= form.text_field :peso %>
+  </div>
+
+  <div>
+    <%= form.label :dimensoes, style: "display: block" %>
+    <%= form.text_field :dimensoes %>
+  </div>
+
+  <div>
+    <%= form.label :driver_id, style: "display: block" %>
+    <%= form.number_field :driver_id %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

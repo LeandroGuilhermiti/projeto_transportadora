@@ -1,0 +1,11 @@
+<div class="hero">
+  <div class="hero-content">
+    <h1>Rastreie sua Encomenda</h1>
+    <p>Acompanhe pacotes e entregas em tempo real com facilidade e rapidez.</p>
+    
+    <%= form_with(url: tracking_search_path, method: :post, local: true, class: 'tracking-form') do |f| %>
+      <%= f.text_field :codigo_rastreio, placeholder: 'Digite seu código de rastreio (Ex: BR123456789)', class: 'tracking-input' %>
+      <%= f.submit 'Rastrear', class: 'btn btn-primary' %>
+    <% end %>
+  </div>
+</div>

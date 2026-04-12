@@ -6,6 +6,8 @@ class User < ApplicationRecord
 
   validates :nome, presence: true
 
+  has_many :packages, foreign_key: 'driver_id'
+
   before_validation :set_default_cargo, on: :create
 
   def admin?
