@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_many :packages, foreign_key: 'driver_id'
 
   before_validation :set_default_cargo, on: :create
+  before_save :limpar_regiao_atuacao_se_nao_for_motorista
 
   def admin?
     cargo == 'admin'
@@ -26,5 +27,9 @@ class User < ApplicationRecord
 
   def set_default_cargo
     self.cargo ||= 'cliente'
+  end
+
+  def limpar_regiao_atuacao_se_nao_for_motorista
+    self.regiao_atuacao = nil unless motorista?
   end
 end

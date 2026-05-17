@@ -18,6 +18,12 @@
 
         <%= f.hidden_field :cargo, value: params[:cargo] || 'cliente' %>
 
+        <% if params[:cargo] == 'motorista' %>
+        <div class="field">
+          <%= f.text_field :regiao_atuacao, placeholder: "Região de Atuação (ex: Zona Leste)", class: "auth-input", required: true %>
+        </div>
+        <% end %>
+
         <div class="field">
           <%= f.text_field :nome, autofocus: true, autocomplete: "name", placeholder: "Nome Completo", class: "auth-input", required: true %>
         </div>

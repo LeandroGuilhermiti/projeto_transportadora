@@ -1,16 +1,20 @@
-<p style="color: green"><%= notice %></p>
-
-<% content_for :title, "Packages" %>
-
-<h1>Packages</h1>
-
-<div id="packages">
-  <% @packages.each do |package| %>
-    <%= render package %>
-    <p>
-      <%= link_to "Show this package", package %>
-    </p>
+<div style="padding: 20px; font-family: sans-serif;">
+  <h1 style="color: #333;">Minhas Entregas Diárias</h1>
+  <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">Use esta tela no seu celular para atualizar o status dos pacotes na sua Van/Caminhão.</p>
+  
+  <% if @packages.empty? %>
+     <p style="color: #ef4444; border: 1px solid #ef4444; padding: 15px; border-radius: 5px;">Você não tem nenhum pacote pendente para a sua região no momento.</p>
+  <% else %>
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+      <% @packages.each do |package| %>
+        <div style="background: #fff; border: 1px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.05); padding: 15px; border-radius: 8px;">
+          <h3 style="margin: 0 0 10px; color: #111827;">📦 <%= package.destinatario %></h3>
+          <p style="margin: 0 0 5px; font-size: 0.85em; color: #6b7280;"><strong>Rumo a:</strong> <%= package.endereco %></p>
+          <p style="margin: 0 0 15px; font-size: 0.85em; color: #6b7280;"><strong>Status Atual:</strong> <%= package.status %></p>
+          
+          <%= link_to "Acessar pacote para atualizar", edit_package_path(package), style: "display: block; text-align: center; background: #3b82f6; color: white; padding: 12px; text-decoration: none; border-radius: 5px; font-weight: bold;" %>
+        </div>
+      <% end %>
+    </div>
   <% end %>
 </div>
-
-<%= link_to "New package", new_package_path %>

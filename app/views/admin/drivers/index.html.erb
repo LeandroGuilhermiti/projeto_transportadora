@@ -1,0 +1,150 @@
+<div class="drivers-wrapper">
+  <!-- Cabeçalho da Página -->
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Gestão de Motoristas</h1>
+      <p class="page-subtitle">Acompanhamento de status e informações da equipe.</p>
+    </div>
+    <%= link_to new_user_registration_path, class: "btn-primary-blue", data: { turbo: false } do %>
+      + Adicionar Motorista
+    <% end %>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row drivers-kpis">
+    <div class="kpi-card" style="border-top: 4px solid var(--accent-blue);">
+      <p>TOTAL DE MOTORISTAS</p>
+      <h2><%= @total_motoristas %></h2>
+      <p style="text-transform: none; color: var(--text-muted);">👥 Equipe cadastrada</p>
+    </div>
+
+    <div class="kpi-card">
+      <p>EM ROTA</p>
+      <h2 style="color: #3b82f6;"><%= @motoristas_em_rota %></h2>
+      <p style="text-transform: none; color: #3b82f6;">🚛 Em operação agora</p>
+    </div>
+
+    <div class="kpi-card">
+      <p>DISPONÍVEIS</p>
+      <h2 style="color: var(--accent-green);"><%= @motoristas_disponiveis %></h2>
+      <p style="text-transform: none; color: var(--accent-green);">✓ Prontos para despacho</p>
+    </div>
+
+    <div class="kpi-card critical">
+      <p>ENTREGAS HOJE</p>
+      <h2><%= Package.where('created_at >= ?', Time.zone.now.beginning_of_day).count %></h2>
+      <p style="text-transform: none;">📦 Pacotes no dia</p>
+    </div>
+  </div>
+
+  <!-- Toolbar com filtro e busca -->
+  <div class="delivery-toolbar">
+    <div class="toolbar-filters">
+      <button class="filter-tab active" onclick="filtrarMotoristas(this, 'todos')">Todos</button>
+      <button class="filter-tab" onclick="filtrarMotoristas(this, 'em-rota')">Em Rota</button>
+      <button class="filter-tab" onclick="filtrarMotoristas(this, 'disponivel')">Disponíveis</button>
+    </div>
+    <div class="toolbar-actions">
+      <span class="date-picker">🗓 <%= Time.zone.now.strftime("%d/%m/%Y") %></span>
+    </div>
+  </div>
+
+  <!-- Grid de Cards de Motoristas -->
+  <% if @motoristas.empty? %>
+    <div class="empty-state">
+      <p>👤</p>
+      <h3>Nenhum motorista cadastrado</h3>
+      <p>Adicione motoristas ao sistema para começar a gerenciar a equipe.</p>
+    </div>
+  <% else %>
+    <div class="drivers-grid" id="drivers-grid">
+      <% @motoristas.each do |motorista| %>
+        <%
+          entregas_hoje = motorista.packages.where('created_at >= ?', Time.zone.now.beginning_of_day).count
+          total_entregas = motorista.packages.count
+          em_rota = motorista.packages.where(status: 'Em Rota').exists?
+          status_label = em_rota ? 'Em Rota' : 'Disponível'
+          status_css = em_rota ? 'driver-status-rota' : 'driver-status-disponivel'
+          data_status = em_rota ? 'em-rota' : 'disponivel'
+        %>
+        <div class="driver-card" data-status="<%= data_status %>">
+          <div class="driver-card-header">
+            <div class="driver-avatar-area">
+              <img
+                src="https://ui-avatars.com/api/?name=<%= URI.encode_www_form_component(motorista.nome || 'M') %>&background=e5e7eb&color=002244&size=80"
+                class="driver-avatar"
+                alt="<%= motorista.nome %>"
+              >
+              <span class="driver-status-dot <%= status_css %>"></span>
+            </div>
+            <div class="driver-info">
+              <h3 class="driver-name"><%= motorista.nome %></h3>
+              <p class="driver-email"><%= motorista.email %></p>
+            </div>
+            <span class="status-pill <%= em_rota ? 'status-em-rota' : 'status-entregue' %>">
+              <span class="dot"></span>
+              <%= status_label %>
+            </span>
+          </div>
+
+          <div class="driver-stats">
+            <div class="driver-stat">
+              <span class="stat-label">ENTREGAS HOJE</span>
+              <span class="stat-value" style="color: var(--accent-blue);">
+                <%= entregas_hoje %>/<%= total_entregas %>
+              </span>
+            </div>
+
+            <div class="driver-stat">
+              <span class="stat-label">REGIÃO</span>
+              <span class="stat-value">
+                <%= motorista.regiao_atuacao.present? ? motorista.regiao_atuacao : '—' %>
+              </span>
+            </div>
+
+            <div class="driver-stat">
+              <span class="stat-label">CADASTRADO EM</span>
+              <span class="stat-value"><%= motorista.created_at.strftime("%d/%m/%Y") %></span>
+            </div>
+          </div>
+
+          <div class="driver-card-footer">
+            <% pacote_ativo = motorista.packages.where(status: 'Em Rota').first %>
+            <% if pacote_ativo %>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">
+                📦 Rastreio: <strong><%= pacote_ativo.codigo_rastreio %></strong>
+              </span>
+            <% else %>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Sem entrega ativa no momento</span>
+            <% end %>
+            <%= link_to "Ver Entregas", admin_packages_path(q: motorista.nome), class: "btn-ver-perfil", data: { turbo: false } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="table-footer" style="background: #fff; border-radius: 0 0 12px 12px; margin-top: -1px;">
+      <p>Mostrando <%= @motoristas.count %> motorista(s)</p>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function filtrarMotoristas(botao, filtro) {
+    document.querySelectorAll('.filter-tab').forEach(function(b) {
+      b.classList.remove('active');
+    });
+    botao.classList.add('active');
+
+    var cards = document.querySelectorAll('.driver-card');
+    cards.forEach(function(card) {
+      if (filtro === 'todos') {
+        card.style.display = '';
+      } else if (card.dataset.status === filtro) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+</script>

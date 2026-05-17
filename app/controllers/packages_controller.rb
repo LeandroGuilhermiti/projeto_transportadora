@@ -2,74 +2,61 @@ class PackagesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_package, only: %i[ show edit update destroy ]
 
-  # GET /packages or /packages.json
   def index
-    if current_user.motorista?
-      @packages = current_user.packages
-    else
-      @packages = Package.all
-    end
+    @packages = Package.where(driver_id: current_user.id).order(created_at: :desc)
   end
 
-  # GET /packages/1 or /packages/1.json
   def show
   end
 
-  # GET /packages/new
   def new
     @package = Package.new
   end
 
-  # GET /packages/1/edit
   def edit
   end
 
-  # POST /packages or /packages.json
   def create
     @package = Package.new(package_params)
-
-    respond_to do |format|
-      if @package.save
-        format.html { redirect_to @package, notice: "Package was successfully created." }
-        format.json { render :show, status: :created, location: @package }
+    if @package.save
+      if current_user.admin?
+        redirect_to admin_packages_path, notice: "Pacote foi criado com sucesso."
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @package.errors, status: :unprocessable_entity }
+        redirect_to packages_path, notice: "Pacote foi criado com sucesso."
       end
+    else
+      render :new, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /packages/1 or /packages/1.json
   def update
-    respond_to do |format|
-      if @package.update(package_params)
-        format.html { redirect_to @package, notice: "Package was successfully updated.", status: :see_other }
-        format.json { render :show, status: :ok, location: @package }
+    if @package.update(package_params)
+      if current_user.admin?
+        redirect_to admin_packages_path, notice: "Pacote atualizado e salvo!"
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @package.errors, status: :unprocessable_entity }
+        redirect_to packages_path, notice: "Pacote atualizado e salvo!"
       end
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
-  # DELETE /packages/1 or /packages/1.json
   def destroy
-    @package.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to packages_path, notice: "Package was successfully destroyed.", status: :see_other }
-      format.json { head :no_content }
+    @package.destroy
+    if current_user.admin?
+      redirect_to admin_packages_path, notice: "Pacote apagado com sucesso."
+    else
+      redirect_to packages_path, notice: "Pacote apagado com sucesso."
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_package
-      @package = Package.find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def package_params
-      params.expect(package: [ :codigo_rastreio, :destinatario, :endereco, :status, :peso, :dimensoes, :driver_id ])
-    end
+  def set_package
+    @package = Package.find(params[:id])
+  end
+
+  def package_params
+    params.require(:package).permit(:codigo_rastreio, :destinatario, :endereco, :peso, :status, :driver_id, :regiao)
+  end
 end

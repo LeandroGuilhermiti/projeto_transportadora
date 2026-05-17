@@ -27,7 +27,8 @@
     <% unless devise_controller? %>
       <nav class="navbar">
       <div class="navbar-content">
-        <%= link_to 'Rotagily', root_path, class: 'brand-logo' %>
+        <% dashboard_path = user_signed_in? ? (current_user.admin? ? admin_dashboard_path : (current_user.motorista? ? packages_path : root_path)) : root_path %>
+        <%= link_to 'Rotagily', dashboard_path, class: 'brand-logo' %>
         <div class="nav-links">
           <% if user_signed_in? %>
             <span class="user-greeting">Olá, <%= current_user.nome %> (<%= current_user.cargo.capitalize %>)</span>

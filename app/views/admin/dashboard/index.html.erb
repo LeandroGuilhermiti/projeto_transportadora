@@ -1,0 +1,111 @@
+<div class="dashboard-grid">
+  <!-- Top KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <p>Total de Entregas</p>
+      <h2><%= number_to_human(@total_entregas, format: '%n', strip_insignificant_zeros: true) || "0" %></h2>
+      <p style="text-transform:none; color: var(--accent-green);">+5.2% vs ontem</p>
+    </div>
+    
+    <div class="kpi-card">
+      <p>Motoristas Ativos</p>
+      <h2><%= @motoristas_ativos %></h2>
+      <p style="text-transform:none;">📍 Em operação agora</p>
+    </div>
+    
+    <div class="kpi-card">
+      <p>Eficiência Média</p>
+      <h2><%= @eficiencia %>%</h2>
+      <div style="height: 4px; background: #e5e7eb; border-radius: 2px; margin-top: 10px;">
+        <div style="height: 100%; border-radius: 2px; background: var(--accent-blue); width: <%= @eficiencia %>%;"></div>
+      </div>
+    </div>
+    
+    <div class="kpi-card critical">
+      <p>Alertas Críticos</p>
+      <h2><%= @alertas_criticos > 9 ? @alertas_criticos : "0#{@alertas_criticos}" %></h2>
+      <p style="text-transform:none;">⚠️ Requer atenção imediata</p>
+    </div>
+  </div>
+
+  <!-- Animated Map Section -->
+  <div class="map-card">
+    <div class="map-header">
+      <h3>Monitoramento Nacional - Rotagily Core</h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin:0;">Distribuição da frota e nós logísticos em território brasileiro</p>
+    </div>
+    
+    <div class="animated-map-container">
+      <!-- Mapa do Brasil em SVG (Formato simplificado e leve) -->
+      <%= image_tag 'mapa-brasil.svg', class: 'brazil-map-svg', alt: 'Mapa Logístico do Brasil' %>
+
+      <!-- veiculos, posicionados via css -->
+      <div class="blinking-truck truck-1"></div>
+      <div class="blinking-truck truck-2"></div>
+      <div class="blinking-truck truck-3"></div>
+    </div>
+  </div>
+
+  <!-- Right Sidebar: Alerts -->
+  <div class="alerts-sidebar">
+    <h3 style="margin: 0 0 5px; color: var(--accent-blue);">🚨 Alertas de Incidência</h3>
+    
+    <div class="alert-card">
+      <p class="time"><%= Time.now.strftime("%H:%M") %></p>
+      <h4>Atraso Crítico</h4>
+      <h3>Caminhão XYZ-9876</h3>
+      <p class="desc">Parado há mais de 45 min em zona de risco. Sem comunicação ativa.</p>
+      <button class="btn-action-sm">Acionar Suporte</button>
+    </div>
+
+    <div class="alert-card warning">
+      <p class="time"><%= (Time.now - 1.hour).strftime("%H:%M") %></p>
+      <h4>Problema Mecânico</h4>
+      <h3>Van JKL-4412</h3>
+      <p class="desc">Alerta de sensor de pressão ativado. Desvio para oficina.</p>
+    </div>
+
+    <div class="alert-card" style="border-left-color: #3b82f6;">
+      <p class="time"><%= (Time.now - 2.hours).strftime("%H:%M") %></p>
+      <h4 style="color: #3b82f6;">Mudança de Rota</h4>
+      <h3>Caminhão QWE-1234</h3>
+      <p class="desc">Roteiro recalibrado automaticamente devido a acidente na via principal.</p>
+    </div>
+  </div>
+
+  <!-- Bottom Table -->
+  <div class="priority-dispatch">
+    <h3 style="margin: 0 0 10px; color: var(--accent-blue);">⚠️ Despacho Prioritário</h3>
+    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px;">Ordens urgentes aguardando atribuição de motorista da sua região.</p>
+    
+    <table class="dispatch-table">
+      <thead>
+        <tr>
+          <th>Rastreio</th>
+          <th>Destino / Cliente</th>
+          <th>Região</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @despachos_prioritarios.each do |pacote| %>
+          <tr>
+            <td><strong><%= pacote.codigo_rastreio %></strong></td>
+            <td><%= pacote.destinatario %></td>
+            <td><%= pacote.regiao || "Não definida" %></td>
+            <td><span class="tag-urgente">Aguardando Despacho</span></td>
+            <td>
+              <%= link_to 'Atribuir Motorista', edit_package_path(pacote), class: 'btn-action-sm', style: 'background: var(--accent-gold); color: #000; text-decoration: none;' %>
+            </td>
+          </tr>
+        <% end %>
+        <% if @despachos_prioritarios.empty? %>
+          <tr>
+             <td colspan="5" style="text-align: center; color: #999;">Nenhum pacote pendente de atribuição no momento!</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

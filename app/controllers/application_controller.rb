@@ -7,10 +7,32 @@ class ApplicationController < ActionController::Base
 
   before_action :configure_permitted_parameters, if: :devise_controller?
 
+  layout :layout_by_resource
+
   protected
 
+  def layout_by_resource
+    if devise_controller?
+      "application"
+    elsif current_user&.admin?
+      "admin"
+    else
+      "application"
+    end
+  end
+
+  def after_sign_in_path_for(resource)
+    if resource.admin?
+      admin_dashboard_path
+    elsif resource.motorista?
+      packages_path
+    else
+      super
+    end
+  end
+
   def configure_permitted_parameters
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:nome, :cargo])
-    devise_parameter_sanitizer.permit(:account_update, keys: [:nome, :cargo])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:nome, :cargo, :regiao_atuacao])
+    devise_parameter_sanitizer.permit(:account_update, keys: [:nome, :cargo, :regiao_atuacao])
   end
 end
