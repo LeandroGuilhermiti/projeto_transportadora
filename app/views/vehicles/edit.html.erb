@@ -1,12 +1,24 @@
-<% content_for :title, "Editing vehicle" %>
+<% content_for :title, "Editar Veículo" %>
 
-<h1>Editing vehicle</h1>
+<div class="vf-container">
+  
+  <div class="vf-header">
+    <p class="vf-subtitle">Frota &rsaquo; Edição</p>
+    <h2 class="vf-title">Editar Veículo</h2>
+  </div>
 
-<%= render "form", vehicle: @vehicle %>
+  <div class="vf-card">
+    <span class="vf-watermark">🚐</span>
+    <%= render "form", vehicle: @vehicle %>
+  </div>
 
-<br>
+  <div style="margin-top: 30px; max-width: 700px; width: 100%; display: flex; gap: 15px; align-items: flex-start;">
+    <div style="width: 40px; height: 40px; border-radius: 50%; background-color: rgba(20, 97, 172, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+      <span style="font-size: 1.2rem;">ℹ️</span>
+    </div>
+    <p style="font-size: 0.9rem; color: #64748b; font-style: italic; line-height: 1.6; margin: 0;">
+      Qualquer alteração na capacidade reflete imediatamente nas rotas pendentes alocadas a este veículo. Certifique-se dos dados corretos.
+    </p>
+  </div>
 
-<div>
-  <%= link_to "Show this vehicle", @vehicle %> |
-  <%= link_to "Back to vehicles", vehicles_path %>
 </div>

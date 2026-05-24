@@ -1,8 +1,7 @@
-<%= form_with(model: vehicle) do |form| %>
+<%= form_with(model: vehicle, class: "vf-form") do |form| %>
   <% if vehicle.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(vehicle.errors.count, "error") %> prohibited this vehicle from being saved:</h2>
-
+    <div class="vf-error-box">
+      <h2><%= pluralize(vehicle.errors.count, "erro", "erros") %> impediram que o veículo fosse salvo:</h2>
       <ul>
         <% vehicle.errors.each do |error| %>
           <li><%= error.full_message %></li>
@@ -11,22 +10,41 @@
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :placa, style: "display: block" %>
-    <%= form.text_field :placa %>
+  <div class="vf-grid">
+    <!-- Placa -->
+    <div class="vf-input-group">
+      <%= form.label :placa, "Placa", class: "vf-label" %>
+      <div class="vf-input-wrapper">
+        <%= form.text_field :placa, class: "vf-input", placeholder: "ABC-1234", style: "text-transform: uppercase;" %>
+      </div>
+    </div>
+
+    <!-- Modelo -->
+    <div class="vf-input-group">
+      <%= form.label :modelo, "Modelo", class: "vf-label" %>
+      <div class="vf-input-wrapper">
+        <%= form.text_field :modelo, class: "vf-input", placeholder: "Ex: Mercedes-Benz Sprinter" %>
+      </div>
+    </div>
+
+    <!-- Capacidade -->
+    <div class="vf-input-group vf-full-width">
+      <%= form.label :capacidade, "Capacidade de Carga (kg)", class: "vf-label" %>
+      <div class="vf-input-wrapper">
+        <%= form.number_field :capacidade, class: "vf-input", placeholder: "0", step: "1" %>
+        <span class="vf-input-suffix">kg</span>
+      </div>
+    </div>
   </div>
 
-  <div>
-    <%= form.label :modelo, style: "display: block" %>
-    <%= form.text_field :modelo %>
-  </div>
-
-  <div>
-    <%= form.label :capacidade, style: "display: block" %>
-    <%= form.number_field :capacidade %>
-  </div>
-
-  <div>
-    <%= form.submit %>
+  <div class="vf-actions">
+    <%= link_to vehicles_path, class: "vf-btn-cancel" do %>
+      <span style="font-size: 1.2rem;">&larr;</span> Voltar para veículos
+    <% end %>
+    
+    <%= form.button(type: "submit", class: "vf-btn-submit") do %>
+      <%= vehicle.persisted? ? "Atualizar Veículo" : "Criar Veículo" %>
+      <span style="font-size: 1.2rem; margin-left: 5px;">+</span>
+    <% end %>
   </div>
 <% end %>

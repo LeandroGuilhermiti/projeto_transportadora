@@ -2,8 +2,7 @@ class VehiclesController < ApplicationController
   before_action :authenticate_user!
   before_action :check_admin
   before_action :set_vehicle, only: %i[ show edit update destroy ]
-
-  private
+  layout 'admin'
 
   def check_admin
     redirect_to root_path, alert: 'Acesso negado.' unless current_user.admin?
@@ -12,6 +11,11 @@ class VehiclesController < ApplicationController
   # GET /vehicles or /vehicles.json
   def index
     @vehicles = Vehicle.all
+    @total_vehicles = @vehicles.count
+    # Mock status data pois não temos campo no banco
+    @operacionais = @total_vehicles
+    @manutencao = 0
+    @indisponiveis = 0
   end
 
   # GET /vehicles/1 or /vehicles/1.json

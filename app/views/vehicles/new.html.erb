@@ -1,11 +1,24 @@
-<% content_for :title, "New vehicle" %>
+<% content_for :title, "Novo Veículo" %>
 
-<h1>New vehicle</h1>
+<div class="vf-container">
+  
+  <div class="vf-header">
+    <p class="vf-subtitle">Frota &rsaquo; Cadastro</p>
+    <h2 class="vf-title">Novo Veículo</h2>
+  </div>
 
-<%= render "form", vehicle: @vehicle %>
+  <div class="vf-card">
+    <span class="vf-watermark">🚐</span>
+    <%= render "form", vehicle: @vehicle %>
+  </div>
 
-<br>
+  <div style="margin-top: 30px; max-width: 700px; width: 100%; display: flex; gap: 15px; align-items: flex-start;">
+    <div style="width: 40px; height: 40px; border-radius: 50%; background-color: rgba(20, 97, 172, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+      <span style="font-size: 1.2rem;">ℹ️</span>
+    </div>
+    <p style="font-size: 0.9rem; color: #64748b; font-style: italic; line-height: 1.6; margin: 0;">
+      Os dados do veículo serão processados pelo motor de roteamento para otimizar as janelas de entrega conforme a capacidade informada em quilos (kg).
+    </p>
+  </div>
 
-<div>
-  <%= link_to "Back to vehicles", vehicles_path %>
 </div>

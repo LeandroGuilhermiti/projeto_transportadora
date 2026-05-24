@@ -1,10 +1,117 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, "Detalhes do Veículo" %>
 
-<%= render @vehicle %>
+<div class="vehicles-wrapper">
+  
+  <!-- Header Section -->
+  <div class="vd-topbar">
+    <div>
+      <div class="vd-status-pulse">
+        <div class="vd-status-dot"></div>
+        Operacional
+      </div>
+      <h2 class="vd-title"><%= @vehicle.modelo %></h2>
+      <p class="vd-subtitle">Frota Logística • <%= @vehicle.placa %></p>
+    </div>
+    
+    <div class="vd-actions">
+      <%= link_to "Remover Veículo", @vehicle, data: { turbo_method: :delete, turbo_confirm: "Tem certeza que deseja apagar o veículo #{@vehicle.placa} do sistema?" }, class: "vd-btn-danger" %>
 
-<div>
-  <%= link_to "Edit this vehicle", edit_vehicle_path(@vehicle) %> |
-  <%= link_to "Back to vehicles", vehicles_path %>
+      <%= link_to vehicles_path, class: "vd-btn-outline" do %>
+        &larr; Voltar para Veículos
+      <% end %>
+      
+      <%= link_to edit_vehicle_path(@vehicle), class: "vd-btn-primary" do %>
+        Editar Veículo
+      <% end %>
+    </div>
+  </div>
 
-  <%= button_to "Destroy this vehicle", @vehicle, method: :delete %>
+  <!-- Single Focus Content Area -->
+  <div class="vd-info-card">
+    <!-- Decorative Watermark Motif -->
+    <span class="vd-watermark">🚐</span>
+    
+    <div style="position: relative; z-index: 10;">
+      <div class="vd-section-title">
+        <div class="vd-section-indicator"></div>
+        Informações Técnicas
+      </div>
+      
+      <div class="vd-info-grid">
+        <!-- Field -->
+        <div class="vd-info-item">
+          <label class="vd-info-label">Placa do Veículo</label>
+          <div class="vd-info-value-wrap">
+            <div class="vd-info-icon">🆔</div>
+            <p class="vd-info-value" style="font-family: monospace; letter-spacing: 0.05em;"><%= @vehicle.placa %></p>
+          </div>
+        </div>
+        
+        <!-- Field -->
+        <div class="vd-info-item">
+          <label class="vd-info-label">Modelo e Marca</label>
+          <div class="vd-info-value-wrap">
+            <div class="vd-info-icon">🚐</div>
+            <p class="vd-info-value"><%= @vehicle.modelo %></p>
+          </div>
+        </div>
+        
+        <!-- Field -->
+        <div class="vd-info-item">
+          <label class="vd-info-label">Capacidade de Carga</label>
+          <div class="vd-info-value-wrap">
+            <div class="vd-info-icon">⚖️</div>
+            <p class="vd-info-value"><%= @vehicle.capacidade.present? ? "#{@vehicle.capacidade} kg" : "Não especificada" %></p>
+          </div>
+        </div>
+        
+        <!-- Field -->
+        <div class="vd-info-item">
+          <label class="vd-info-label">Última Revisão (Registro)</label>
+          <div class="vd-info-value-wrap">
+            <div class="vd-info-icon">🔧</div>
+            <p class="vd-info-value"><%= @vehicle.created_at.strftime("%d %b %Y") %></p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mock Metrics Row -->
+      <div class="vd-metrics-row">
+        <div class="vd-metric-box">
+          <span class="vd-metric-icon">⚡</span>
+          <div>
+            <span class="vd-metric-label">Odômetro</span>
+            <p class="vd-metric-val"><%= rand(10..150) %>.500 km</p>
+          </div>
+        </div>
+        
+        <div class="vd-metric-box">
+          <span class="vd-metric-icon">⛽</span>
+          <div>
+            <span class="vd-metric-label">Consumo Médio</span>
+            <p class="vd-metric-val"><%= rand(5..12) %>.2 km/L</p>
+          </div>
+        </div>
+        
+        <div class="vd-metric-box">
+          <span class="vd-metric-icon">📅</span>
+          <div>
+            <span class="vd-metric-label">Ano/Fab</span>
+            <p class="vd-metric-val">2022/2023</p>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Bottom Footer Info -->
+  <footer style="margin-top: 60px; padding-top: 30px; border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; color: #94a3b8;">
+    <p style="font-size: 0.85rem; font-weight: 600; margin: 0;">ID do Sistema: VR-<%= @vehicle.created_at.year %>-<%= @vehicle.placa.gsub(/[^0-9A-Za-z]/, '') if @vehicle.placa %></p>
+    <div style="display: flex; gap: 20px;">
+      <a href="#" style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: inherit; text-decoration: none;">Termos</a>
+      <a href="#" style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: inherit; text-decoration: none;">Privacidade</a>
+    </div>
+  </footer>
+
 </div>
