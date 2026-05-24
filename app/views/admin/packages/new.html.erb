@@ -1,0 +1,71 @@
+<div class="nova-entrega-wrapper">
+  <!-- Cabeçalho -->
+  <div class="ne-page-header">
+    <div>
+      <h1 class="ne-title">Novo Pacote</h1>
+      <p class="ne-subtitle">Cadastre os dados físicos do pacote no sistema.</p>
+    </div>
+    <div class="ne-header-actions">
+      <%= link_to "Cancelar", admin_packages_path, class: "btn-ne-cancelar", data: { turbo: false } %>
+    </div>
+  </div>
+
+  <%= form_with(model: @package, url: admin_packages_path, method: :post, data: { turbo: false }) do |form| %>
+
+    <% if @package.errors.any? %>
+      <div class="ne-errors">
+        <strong><%= @package.errors.count %> erro(s) impediram o salvamento:</strong>
+        <ul>
+          <% @package.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="ne-card" style="max-width: 700px;">
+      <div class="ne-card-header">
+        <div class="ne-card-icon" style="background: #dbeafe;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+        </div>
+        <h3 class="ne-card-title">Dados do Pacote</h3>
+      </div>
+
+      <!-- Código de Rastreio -->
+      <div class="ne-field-full">
+        <label class="ne-label">Código de Rastreio <span style="font-weight: 400; text-transform: none; color: #9ca3af;">(opcional — gerado automaticamente se vazio)</span></label>
+        <%= form.text_field :codigo_rastreio, class: "ne-input ne-font-mono", placeholder: "Ex: RTG-12345-BR" %>
+      </div>
+
+      <!-- Destinatário -->
+      <div class="ne-field-full">
+        <label class="ne-label">Destinatário</label>
+        <%= form.text_field :destinatario, class: "ne-input", placeholder: "Nome completo de quem vai receber" %>
+      </div>
+
+      <!-- Endereço -->
+      <div class="ne-field-full">
+        <label class="ne-label">Endereço de Entrega</label>
+        <%= form.text_field :endereco, class: "ne-input", placeholder: "Rua, Número, Complemento, Bairro" %>
+      </div>
+
+      <!-- Peso e Dimensões -->
+      <div class="ne-row-2">
+        <div>
+          <label class="ne-label">Peso (kg)</label>
+          <%= form.number_field :peso, class: "ne-input", placeholder: "0.00", step: "0.01" %>
+        </div>
+        <div>
+          <label class="ne-label">Dimensões (LxAxP cm)</label>
+          <%= form.text_field :dimensoes, class: "ne-input", placeholder: "30x20x15" %>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="ne-submit-row">
+        <%= form.submit "Cadastrar Pacote", class: "btn-ne-submit" %>
+      </div>
+    </div>
+
+  <% end %>
+</div>

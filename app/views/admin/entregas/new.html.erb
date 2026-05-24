@@ -1,0 +1,170 @@
+<div class="nova-entrega-wrapper">
+  <!-- Cabeçalho -->
+  <div class="ne-page-header">
+    <div>
+      <h1 class="ne-title">Nova Entrega</h1>
+      <p class="ne-subtitle">Registre um novo pacote e defina a rota de logística.</p>
+    </div>
+    <div class="ne-header-actions">
+      <%= link_to "Cancelar", admin_entregas_path, class: "btn-ne-cancelar", data: { turbo: false } %>
+    </div>
+  </div>
+
+  <%= form_with(url: admin_entregas_path, method: :post, data: { turbo: false }) do |form| %>
+
+    <div class="ne-grid">
+      <!-- Lado Esquerdo: Formulário -->
+      <div class="ne-form-col">
+        
+        <!-- Buscar Pacote Cadastrado -->
+        <div class="ne-card">
+          <div class="ne-card-header">
+            <div class="ne-card-icon" style="background: #e0e7ff;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4338ca" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+            </div>
+            <h3 class="ne-card-title">Dados do Pacote</h3>
+          </div>
+          
+          <div class="ne-field-full">
+            <label class="ne-label">BUSCAR PACOTE CADASTRADO (SEM MOTORISTA)</label>
+            <div class="ne-input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <%= select_tag :package_id, 
+                  options_from_collection_for_select(@pacotes_pendentes, :id, ->(p) { "#{p.codigo_rastreio} - #{p.destinatario}" }), 
+                  prompt: "Selecione o pacote...", 
+                  class: "ne-input ne-input-with-icon ne-select ne-field-full" 
+              %>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Selecione um pacote existente que ainda não foi atribuído a um motorista.</p>
+          </div>
+        </div>
+
+        <!-- Destino -->
+        <div class="ne-card">
+          <div class="ne-card-header">
+            <div class="ne-card-icon" style="background: #ffedd5;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <h3 class="ne-card-title">Destino</h3>
+          </div>
+
+          <div class="ne-row-2">
+            <div>
+              <label class="ne-label">Região de Entrega</label>
+              <%= select_tag "package[regiao]", options_for_select([
+                "Zona Sul - São Paulo", 
+                "Zona Oeste - São Paulo", 
+                "Zona Leste - São Paulo", 
+                "Centro - São Paulo",
+                "Zona Norte - São Paulo"
+              ]), class: "ne-input ne-select ne-field-full" %>
+            </div>
+            <div>
+              <label class="ne-label">Cidade</label>
+              <select id="cidade-select" name="package[cidade]" class="ne-input ne-select ne-field-full">
+                <option value="">Carregando cidades...</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+<script>
+  document.addEventListener("turbo:load", carregarCidadesSP);
+  document.addEventListener("DOMContentLoaded", carregarCidadesSP);
+
+  function carregarCidadesSP() {
+    const select = document.getElementById("cidade-select");
+    if (!select) return;
+    
+    // Evita carregar duas vezes se já tiver opções
+    if (select.options.length > 1) return;
+
+    fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados/SP/municipios")
+      .then(response => response.json())
+      .then(cidades => {
+        select.innerHTML = '<option value="">Selecione a cidade</option>';
+        cidades.forEach(cidade => {
+          const option = document.createElement("option");
+          option.value = cidade.nome;
+          option.textContent = cidade.nome;
+          
+          // Pré-selecionar São Paulo por padrão
+          if (cidade.nome === "São Paulo") {
+            option.selected = true;
+          }
+          
+          select.appendChild(option);
+        });
+      })
+      .catch(error => {
+        console.error("Erro ao carregar cidades:", error);
+        select.innerHTML = '<option value="">Erro ao carregar</option>';
+      });
+  }
+</script>
+
+        <!-- Logística -->
+        <div class="ne-card">
+          <div class="ne-card-header">
+            <div class="ne-card-icon" style="background: #e2e8f0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/><path d="M12 3v6"/></svg>
+            </div>
+            <h3 class="ne-card-title">Logística</h3>
+          </div>
+
+          <div class="ne-row-2">
+            <div>
+              <label class="ne-label">Motorista Responsável</label>
+              <%= select_tag "package[driver_id]", 
+                  options_from_collection_for_select(@motoristas, :id, ->(m) { "#{m.nome} (#{m.cargo})" }), 
+                  prompt: "Selecionar Motorista", 
+                  class: "ne-input ne-select ne-field-full" 
+              %>
+            </div>
+            <div>
+              <label class="ne-label">Status Inicial</label>
+              <div class="ne-status-badge">
+                <span class="ne-dot ne-dot-blue"></span>
+                Aguardando Coleta
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Lado Direito: Mapa e Resumo -->
+      <div class="ne-sidebar-col">
+        <!-- Mapa Preview -->
+        <div class="ne-map-card mb-6">
+          <div class="ne-map-container">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg7XIQ-kNu4i2vdJsl4KUgSP0_GxP36fyA9LCIAtwldXKAvfM_FqtigsO2zLkHNHNBfgiBmhDP9_hqlpWNy8ItSCxtZ-VzUUSqI_zMo25jP5bFszj17Ucsx6sUE2xANbADeO2amwXcWl0P6tAd_bW1X7xwZG-ydWDoNS0LDUG4DO_FMpwOL-jHNN0CUNnktWD3H_6_ARnt7yjwCvwwOiqguvzdXv_LcMFp13K2g5G9j2r1gxGhe9jy4qdgaXFVW29wd928iLLK3gE" alt="Mapa" class="ne-map-img" style="filter: grayscale(10%) opacity(0.9);">
+            <div class="ne-map-overlay"></div>
+            
+            <div class="ne-map-controls">
+              <button type="button" class="ne-map-btn">+</button>
+              <button type="button" class="ne-map-btn">-</button>
+            </div>
+
+            <!-- Overlay de Informação -->
+            <div class="ne-map-info-bar">
+              <div class="ne-map-pin">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div>
+                <p class="ne-map-info-label">Ponto de Entrega Estimado</p>
+                <p class="ne-map-info-address">São Paulo - SP</p>
+                <p class="ne-map-info-detail">Otimização de rota ativada</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botão Criar -->
+        <div style="margin-top: 20px;">
+          <%= form.submit "Criar Entrega", class: "btn-ne-submit" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

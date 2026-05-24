@@ -1,0 +1,148 @@
+<div class="deliveries-wrapper">
+  <!-- Top KPIs -->
+  <div class="kpi-row deliveries-kpis">
+    <div class="kpi-card" style="border-top: 4px solid var(--accent-blue);">
+      <p>TOTAL DE ENTREGAS HOJE</p>
+      <h2><%= @packages.where('created_at >= ?', Time.zone.now.beginning_of_day).count %></h2>
+      <p style="color: var(--accent-green); text-transform:none;">↗ +12.5% em relação a ontem</p>
+    </div>
+
+    <div class="kpi-card">
+      <p>MOTORISTAS EM ROTA</p>
+      <h2><%= User.where(cargo: 'motorista').count %></h2>
+      <p style="text-transform:none;">👥 95% da frota ativa</p>
+    </div>
+
+    <div class="kpi-card">
+      <p>TAXA DE SUCESSO</p>
+      <%
+        total = @packages.count > 0 ? @packages.count : 1
+        entregues = @packages.where(status: 'Entregue').count
+        taxa = ((entregues.to_f / total) * 100).round(1)
+      %>
+      <h2><%= taxa %>%</h2>
+      <p style="text-transform:none; color: var(--accent-green);">✓ Meta operacional atingida</p>
+    </div>
+
+    <div class="kpi-card" style="border-right: 4px solid #ef4444;">
+      <p style="color: #ef4444;">ALERTAS DE ATRASO</p>
+      <h2 style="color: #ef4444;"><%= @packages.where(status: 'Atrasado').count %></h2>
+      <p style="text-transform:none; color: #ef4444;">◷ Requer atenção imediata</p>
+    </div>
+  </div>
+
+  <!-- Toolbar Filters -->
+  <div class="delivery-toolbar">
+    <div class="toolbar-filters">
+      <button class="filter-tab active" onclick="filtrarEntregas(this, 'todos')">Todos</button>
+      <button class="filter-tab" onclick="filtrarEntregas(this, 'entregue')">Entregue</button>
+      <button class="filter-tab" onclick="filtrarEntregas(this, 'em rota')">Em Rota</button>
+      <button class="filter-tab" onclick="filtrarEntregas(this, 'atrasado')">Atrasado</button>
+    </div>
+
+    <div class="toolbar-actions">
+      <span class="date-picker">🗓 <%= Time.zone.now.strftime("%d/%m/%Y") %></span>
+      <%= link_to "+ Nova Entrega", new_admin_entrega_path, class: "btn-primary-blue", data: { turbo: false } %>
+    </div>
+  </div>
+
+  <!-- Tabela de Entregas -->
+  <div class="table-container">
+    <table class="delivery-table" id="entregas-table">
+      <thead>
+        <tr>
+          <th>ID DO PEDIDO</th>
+          <th>CLIENTE</th>
+          <th>MOTORISTA RESPONSÁVEL</th>
+          <th>STATUS</th>
+          <th>HORÁRIO PREVISTO</th>
+          <th>REALIZADO</th>
+          <th>AÇÕES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @packages.each do |package| %>
+          <%
+            status_lower = package.status&.downcase
+            status_class = case status_lower
+              when 'em rota'  then 'status-em-rota'
+              when 'entregue' then 'status-entregue'
+              when 'atrasado' then 'status-atrasado'
+              else 'status-pendente'
+            end
+          %>
+          <tr data-status="<%= status_lower || 'pendente' %>">
+            <td><strong style="color: var(--accent-blue);">#<%= package.codigo_rastreio %></strong></td>
+
+            <td>
+              <div class="cell-stack">
+                <strong><%= package.destinatario %></strong>
+                <span><%= package.endereco %></span>
+              </div>
+            </td>
+
+            <td>
+              <% if package.driver %>
+                <div class="avatar-cell">
+                  <img src="https://ui-avatars.com/api/?name=<%= URI.encode_www_form_component(package.driver.nome || 'M') %>&background=e5e7eb&color=111827" class="avatar-img">
+                  <span><%= package.driver.nome.to_s.split(" ").first(2).join(" ") %></span>
+                </div>
+              <% else %>
+                <span style="color:#999;">Sem motorista</span>
+              <% end %>
+            </td>
+
+            <td>
+              <span class="status-pill <%= status_class %>">
+                <span class="dot"></span> <%= package.status || 'Pendente' %>
+              </span>
+            </td>
+
+            <td><%= (package.created_at + 1.day).strftime("%H:%M") %></td>
+
+            <td>
+              <% if package.status == 'Entregue' %>
+                <strong style="color: var(--accent-green);"><%= package.updated_at.strftime("%H:%M") %></strong>
+              <% elsif package.status == 'Atrasado' %>
+                <strong style="color: #ef4444;">Excedido</strong>
+              <% else %>
+                <span style="color: #999;">—</span>
+              <% end %>
+            </td>
+
+            <td class="table-actions">
+              <%= link_to "👁", package, class: "action-icon", title: "Ver", data: { turbo: false } %>
+              <%= link_to "✎", edit_package_path(package), class: "action-icon", title: "Editar", data: { turbo: false } %>
+              <%= button_to "✕", package, method: :delete, class: "action-icon red", title: "Apagar" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="table-footer">
+      <p>Mostrando <strong><%= @packages.count %></strong> entrega(s)</p>
+      <div class="pagination-mock">
+        <button>&lt;</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>&gt;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function filtrarEntregas(botao, filtro) {
+    document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
+    botao.classList.add('active');
+
+    document.querySelectorAll('#entregas-table tbody tr').forEach(function(row) {
+      if (filtro === 'todos' || row.dataset.status === filtro) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+</script>

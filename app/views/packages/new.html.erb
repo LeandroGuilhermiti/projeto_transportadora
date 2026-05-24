@@ -1,11 +1,197 @@
-<% content_for :title, "New package" %>
+<div class="nova-entrega-wrapper">
 
-<h1>New package</h1>
+  <%# Cabeçalho da Página %>
+  <div class="ne-page-header">
+    <div>
+      <h1 class="ne-title">Nova Entrega</h1>
+      <p class="ne-subtitle">Registre um novo pacote e defina a rota de logística.</p>
+    </div>
+    <div class="ne-header-actions">
+      <%= link_to "Cancelar", admin_packages_path, class: "btn-ne-cancelar", data: { turbo: false } %>
+    </div>
+  </div>
 
-<%= render "form", package: @package %>
+  <%= form_with(model: @package, url: packages_path, method: :post, data: { turbo: false }) do |form| %>
 
-<br>
+    <% if @package.errors.any? %>
+      <div class="ne-errors">
+        <strong><%= @package.errors.count %> erro(s) impediram o salvamento:</strong>
+        <ul>
+          <% @package.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-<div>
-  <%= link_to "Back to packages", packages_path %>
+    <div class="ne-grid">
+
+      <%# ---- Coluna Esquerda: Formulário ---- %>
+      <div class="ne-form-col">
+
+        <%# Bloco: Dados do Pacote %>
+        <div class="ne-card">
+          <div class="ne-card-header">
+            <div class="ne-card-icon" style="background: #dbeafe;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+            </div>
+            <h3 class="ne-card-title">Dados do Pacote</h3>
+          </div>
+
+          <div class="ne-field-full">
+            <label class="ne-label">Código de Rastreio</label>
+            <%= form.text_field :codigo_rastreio, class: "ne-input ne-font-mono", placeholder: "RTG-00000-BR" %>
+          </div>
+
+          <div class="ne-row-2">
+            <div>
+              <label class="ne-label">Peso (kg)</label>
+              <%= form.number_field :peso, class: "ne-input", placeholder: "0.00", step: "0.01" %>
+            </div>
+            <div>
+              <label class="ne-label">Dimensões (LxAxP cm)</label>
+              <%= form.text_field :dimensoes, class: "ne-input", placeholder: "30x20x15" %>
+            </div>
+          </div>
+        </div>
+
+        <%# Bloco: Destino %>
+        <div class="ne-card">
+          <div class="ne-card-header">
+            <div class="ne-card-icon" style="background: #fef3c7;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <h3 class="ne-card-title">Destino</h3>
+          </div>
+
+          <div class="ne-field-full">
+            <label class="ne-label">Destinatário</label>
+            <%= form.text_field :destinatario, class: "ne-input", placeholder: "Nome completo do cliente" %>
+          </div>
+
+          <div class="ne-field-full ne-input-icon-wrap">
+            <label class="ne-label">Endereço de Entrega</label>
+            <div class="ne-input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737782" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5v14"/><path d="M9 3v14"/></svg>
+              <%= form.text_field :endereco, class: "ne-input ne-input-with-icon", placeholder: "Rua, Número, Complemento, Bairro" %>
+            </div>
+          </div>
+
+          <div class="ne-row-2">
+            <div>
+              <label class="ne-label">Região de Entrega</label>
+              <%= form.text_field :regiao, class: "ne-input", placeholder: "Ex: Zona Sul - São Paulo" %>
+            </div>
+            <div>
+              <label class="ne-label">Status Inicial</label>
+              <%= form.select :status,
+                [["Pendente", "Pendente"], ["Em Rota", "Em Rota"], ["Entregue", "Entregue"], ["Atrasado", "Atrasado"]],
+                { selected: "Pendente" },
+                class: "ne-input ne-select" %>
+            </div>
+          </div>
+        </div>
+
+        <%# Bloco: Logística %>
+        <div class="ne-card">
+          <div class="ne-card-header">
+            <div class="ne-card-icon" style="background: #f3f4f6;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#002244" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-1a3.5 3.5 0 0 0-3.5-3.5H6"/><circle cx="6" cy="5" r="3"/><path d="M9 5h2a2 2 0 0 1 2 2v10"/></svg>
+            </div>
+            <h3 class="ne-card-title">Logística</h3>
+          </div>
+
+          <div class="ne-row-2">
+            <div>
+              <label class="ne-label">Motorista Responsável</label>
+              <%= form.select :driver_id,
+                options_from_collection_for_select(
+                  User.where(cargo: 'motorista').order(:nome),
+                  :id, :nome,
+                  @package.driver_id
+                ),
+                { include_blank: "Selecionar Motorista" },
+                class: "ne-input ne-select" %>
+            </div>
+            <div>
+              <label class="ne-label">Status Inicial</label>
+              <div class="ne-status-badge">
+                <span class="ne-dot ne-dot-blue"></span>
+                <span>Aguardando Coleta</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <%# Botão de Submit %>
+        <div class="ne-submit-row">
+          <%= form.submit "Criar Entrega", class: "btn-ne-submit" %>
+        </div>
+
+      </div>
+
+      <%# ---- Coluna Direita: Mapa e Resumo ---- %>
+      <div class="ne-sidebar-col">
+        <div class="ne-map-card">
+
+          <%# Preview do Mapa %>
+          <div class="ne-map-container">
+            <div class="ne-map-overlay"></div>
+            <img
+              src="https://maps.googleapis.com/maps/api/staticmap?center=São+Paulo,SP,Brasil&zoom=12&size=600x480&style=feature:all|element:geometry|color:0xf5f5f5&style=feature:road|element:geometry|color:0xffffff&style=feature:road|element:geometry.stroke|color:0xe5e5e5&key=nokey"
+              class="ne-map-img"
+              alt="Mapa de São Paulo"
+              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22480%22%3E%3Crect width=%22600%22 height=%22480%22 fill=%22%23e0e3e5%22/%3E%3Ctext x=%22300%22 y=%22240%22 text-anchor=%22middle%22 font-size=%2218%22 fill=%22%23737782%22 font-family=%22sans-serif%22%3EVisualização do Mapa%3C/text%3E%3C/svg%3E'"
+            >
+            <%# Controles do Mapa %>
+            <div class="ne-map-controls">
+              <button type="button" class="ne-map-btn">+</button>
+              <button type="button" class="ne-map-btn">−</button>
+            </div>
+
+            <%# Overlay inferior %>
+            <div class="ne-map-info-bar">
+              <div class="ne-map-pin">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              </div>
+              <div>
+                <p class="ne-map-info-label">Ponto de Entrega Estimado</p>
+                <p class="ne-map-info-address">Av. Paulista, 1578 - Bela Vista</p>
+                <p class="ne-map-info-detail">Otimização de rota: 12.4km (28 min)</p>
+              </div>
+            </div>
+          </div>
+
+          <%# Resumo da Operação %>
+          <div class="ne-summary">
+            <h4 class="ne-summary-title">Resumo da Operação</h4>
+            <div class="ne-summary-list">
+              <div class="ne-summary-item">
+                <div class="ne-summary-label">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737782" stroke-width="2"><path d="M3 22h12"/><path d="M5 22V6l7-4v20"/><path d="M9 9h1"/><path d="M9 12h1"/><path d="M9 15h1"/><path d="M9 18h1"/></svg>
+                  <span>Custo de Frete Est.</span>
+                </div>
+                <span class="ne-summary-value">R$ 42,90</span>
+              </div>
+              <div class="ne-summary-item">
+                <div class="ne-summary-label">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737782" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                  <span>Previsão de Entrega</span>
+                </div>
+                <span class="ne-summary-value">Hoje, 17:30</span>
+              </div>
+              <div class="ne-summary-item" style="border-bottom: none;">
+                <div class="ne-summary-label">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737782" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                  <span>Prioridade</span>
+                </div>
+                <span class="ne-priority-badge">Alta</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  <% end %>
 </div>

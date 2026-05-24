@@ -9,6 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "admin", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "admin_dashboard", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "admin_entregas", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "admin_motoristas", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "admin_nova_entrega", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
@@ -23,12 +27,13 @@
         </div>
         <nav class="sidebar-nav">
           <a href="<%= admin_dashboard_path %>" class="nav-item <%= current_page?(admin_dashboard_path) ? 'active' : '' %>">Dashboard</a>
-          <a href="<%= admin_packages_path %>" class="nav-item <%= current_page?(admin_packages_path) ? 'active' : '' %>">Entregas</a>
+          <a href="<%= admin_entregas_path %>" class="nav-item <%= current_page?(admin_entregas_path) ? 'active' : '' %>">Entregas</a>
+          <a href="<%= admin_packages_path %>" class="nav-item <%= current_page?(admin_packages_path) ? 'active' : '' %>">Pacotes</a>
           <a href="<%= vehicles_path %>" class="nav-item <%= current_page?(vehicles_path) ? 'active' : '' %>">Veículos</a>
           <a href="<%= admin_drivers_path %>" class="nav-item <%= current_page?(admin_drivers_path) ? 'active' : '' %>">Motoristas</a>
         </nav>
         <div class="sidebar-footer">
-          <%= link_to "+ Nova Entrega", new_package_path, class: "btn-nova-entrega", data: { turbo: false } %>
+          <%= link_to "+ Novo Pacote", new_admin_package_path, class: "btn-nova-entrega", data: { turbo: false } %>
         </div>
       </aside>
 
