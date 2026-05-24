@@ -1,8 +1,14 @@
 Rails.application.routes.draw do
   root "tracking#index"
   post "tracking/search", to: "tracking#search", as: "tracking_search"
+  get "tracking/:codigo_rastreio/status", to: "tracking#status", as: "tracking_status"
 
-  resources :packages
+  resources :packages do
+    resources :tracking_events, only: [:create]
+    member do
+      post :reset_tracking
+    end
+  end
   resources :vehicles
   devise_for :users
 

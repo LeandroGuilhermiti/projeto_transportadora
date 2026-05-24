@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_20_192137) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_24_231639) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,6 +25,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_20_192137) do
     t.string "regiao"
     t.string "status"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "tracking_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "descricao"
+    t.string "localizacao"
+    t.bigint "package_id", null: false
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.index ["package_id"], name: "index_tracking_events_on_package_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -49,4 +59,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_20_192137) do
     t.string "placa"
     t.datetime "updated_at", null: false
   end
+
+  add_foreign_key "tracking_events", "packages"
 end

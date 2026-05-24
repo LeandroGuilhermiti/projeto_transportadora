@@ -1,6 +1,6 @@
 class PackagesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_package, only: %i[ show edit update destroy ]
+  before_action :set_package, only: %i[ show edit update destroy reset_tracking ]
 
   def index
     @packages = Package.where(driver_id: current_user.id).order(created_at: :desc)
@@ -48,6 +48,12 @@ class PackagesController < ApplicationController
     else
       redirect_to packages_path, notice: "Pacote apagado com sucesso."
     end
+  end
+
+  def reset_tracking
+    @package.tracking_events.destroy_all
+    @package.update(status: 'Pendente')
+    redirect_to package_path(@package), notice: "Histórico de rastreamento reiniciado!"
   end
 
   private

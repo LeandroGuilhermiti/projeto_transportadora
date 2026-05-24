@@ -168,81 +168,330 @@
     <!-- Right Timeline/Map Col -->
     <div class="bento-col-side">
       
-      <!-- Map Visualization -->
-      <div class="map-placeholder">
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoGxS31OXF2OGjvSucE9ZNEN2WdvOMDd5kA827hN4BhfEMxnTu8MC9rljAP_N-CP7MqOpSGc-ol8LYdRMWlMJvhcVtx8EP4XHHhuwtPTzKJWwETNbDnpGM6PZ35zjE-qdPLNKbl5apR_Lcm9MPPDM4CI8EDMy_EKQk6wtgprBcQGG2TZzT0Uf6WEgxt_1RzhUcdDtbSKaZOPPKiEhXbOCFQx_yAR_-B7SGLrh3gtfPGwb7velk0hqSe5LO8vU7P1glPaNPwnaK8aM" alt="Map">
-        <div class="map-overlay">
-          <div class="map-tag">
-            <div class="pulse-dot"></div>
-            Rastreamento estimado
-          </div>
-          <div class="map-route-visual">
-            <div class="map-node">O</div>
-            <div class="map-line"></div>
-            <div class="map-node dest">D</div>
-          </div>
+      <!-- Leaflet Map Container -->
+      <div id="map"></div>
+
+      <!-- Painel de Simulação -->
+      <div class="card-tonal simulation-card">
+        <h3 style="margin-top: 0; color: var(--color-blue); font-size: 1.2rem;">🎮 Painel de Simulação</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">
+          Simule a rota de entrega do veículo em tempo real para os avaliadores.
+        </p>
+        
+        <div class="simulation-controls" style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <button id="btn-start-sim" class="btn-pkg btn-pkg-primary" style="flex: 1;" disabled>
+            Iniciar Rota
+          </button>
+          <%= button_to "Resetar", reset_tracking_package_path(@package), method: :post, class: "btn-pkg btn-pkg-outline", style: "flex: 1; text-align: center; display: inline-block;" %>
+        </div>
+        
+        <div class="simulation-speed" style="display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; margin-bottom: 10px;">
+          <span style="color: var(--text-muted);">Velocidade:</span>
+          <select id="sim-speed" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 6px; font-weight: 600;">
+            <option value="400">Rápida (Apresentação)</option>
+            <option value="1500">Normal (Realista)</option>
+          </select>
+        </div>
+        
+        <div id="sim-status" style="font-size: 0.85rem; color: var(--text-muted); text-align: center; border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 10px;">
+          Carregando rota...
         </div>
       </div>
 
       <!-- Timeline Section -->
-      <div class="card-tonal" style="flex: 1;">
+      <div class="card-tonal" style="flex: 1; display: flex; flex-direction: column;">
         <h3 class="timeline-title">Histórico de Eventos</h3>
         
-        <div class="timeline-container">
+        <div class="timeline-container" id="timeline-container">
           <div class="timeline-track"></div>
 
-          <% if step_delivered %>
+          <% events = @package.tracking_events.order(created_at: :desc) %>
+          <% if events.any? %>
+            <% events.each do |event| %>
+              <div class="timeline-item active">
+                <div class="timeline-icon">✓</div>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <p class="timeline-step"><%= event.status %></p>
+                    <span class="timeline-time"><%= event.created_at.strftime("%H:%M") %></span>
+                  </div>
+                  <p class="timeline-desc">
+                    <%= event.descricao %>
+                    <% if event.localizacao.present? %>
+                      <br/><small style="color: var(--color-blue);">📍 <%= event.localizacao %></small>
+                    <% end %>
+                  </p>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <!-- Estado Inicial: Apenas Criado -->
             <div class="timeline-item active">
               <div class="timeline-icon">✓</div>
               <div class="timeline-content">
                 <div class="timeline-header">
-                  <p class="timeline-step">Entregue</p>
-                  <span class="timeline-time"><%= event_delivered.strftime("%H:%M") %></span>
+                  <p class="timeline-step">Pedido Criado</p>
+                  <span class="timeline-time"><%= @package.created_at.strftime("%d/%m %H:%M") %></span>
                 </div>
-                <p class="timeline-desc">Pacote entregue ao destinatário com sucesso.</p>
+                <p class="timeline-desc">Informações de envio registradas no sistema.</p>
               </div>
             </div>
           <% end %>
-
-          <div class="timeline-item <%= step_routing ? 'active' : '' %>">
-            <div class="timeline-icon">✓</div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <p class="timeline-step">Em Rota / Em trânsito</p>
-                <span class="timeline-time"><%= step_routing ? event_routing.strftime("%H:%M") : "--:--" %></span>
-              </div>
-              <p class="timeline-desc">O pacote está a caminho do destino.</p>
-            </div>
-          </div>
-
-          <div class="timeline-item <%= step_collected ? 'active' : '' %>">
-            <div class="timeline-icon">✓</div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <p class="timeline-step">Coletado</p>
-                <span class="timeline-time"><%= step_collected ? event_collected.strftime("%H:%M") : "--:--" %></span>
-              </div>
-              <p class="timeline-desc">Mercadoria retirada na origem e bipada no sistema.</p>
-            </div>
-          </div>
-
-          <div class="timeline-item active">
-            <div class="timeline-icon">✓</div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <p class="timeline-step">Pedido Criado</p>
-                <span class="timeline-time"><%= event_created.strftime("%d/%m %H:%M") %></span>
-              </div>
-              <p class="timeline-desc">Informações de envio registradas no sistema.</p>
-            </div>
-          </div>
-
         </div>
-        
-        <button class="btn-pkg-block">Ver Histórico Completo</button>
       </div>
 
     </div>
 
   </div>
 </div>
+
+<!-- Scripts e Estilos do Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const address = <%= @package.endereco.to_json.html_safe %>;
+  const packageId = <%= @package.id %>;
+  
+  // 1. Inicializa o mapa com foco provisório na Paulista (CD)
+  const originCoords = [-23.5615, -46.656]; // Centro de Distribuição Padrão
+  const map = L.map('map').setView(originCoords, 13);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  let routeCoordinates = [];
+  let truckMarker = null;
+  let simInterval = null;
+  let currentStep = 0;
+  
+  // Triggers para disparar eventos durante o trajeto
+  let triggers = {
+    coletado: false,
+    em_transito: false,
+    proximo: false,
+    entregue: false
+  };
+
+  // 2. Geocodificar endereço do cliente usando Nominatim público
+  const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`;
+  
+  fetch(geocodeUrl)
+    .then(res => res.json())
+    .then(data => {
+      let destCoords;
+      if (data && data.length > 0) {
+        destCoords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+      } else {
+        // Fallback realista próximo a SP
+        destCoords = [-23.5855, -46.6754];
+      }
+      initializeMapAndRoute(originCoords, destCoords);
+    })
+    .catch(err => {
+      console.warn("Nominatim error, using fallback location", err);
+      initializeMapAndRoute(originCoords, [-23.5855, -46.6754]);
+    });
+
+  function initializeMapAndRoute(origin, dest) {
+    // Adiciona os Marcadores Iniciais
+    L.marker(origin).addTo(map).bindPopup("<b>Centro de Distribuição (CD)</b>").openPopup();
+    L.marker(dest).addTo(map).bindPopup("<b>Destino do Pacote</b>");
+    
+    // Ajusta o zoom
+    const bounds = L.latLngBounds([origin, dest]);
+    map.fitBounds(bounds, { padding: [40, 40] });
+
+    // 3. Obter rota via OSRM pública
+    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origin[1]},${origin[0]};${dest[1]},${dest[0]}?overview=full&geometries=geojson`;
+    
+    fetch(osrmUrl)
+      .then(res => res.json())
+      .then(routeData => {
+        if (routeData.routes && routeData.routes.length > 0) {
+          const route = routeData.routes[0];
+          // Converte coordenadas da resposta [lon, lat] para [lat, lon] do Leaflet
+          routeCoordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+          
+          // Desenha a linha da menor rota
+          L.polyline(routeCoordinates, {
+            color: '#1461ac',
+            weight: 6,
+            opacity: 0.8
+          }).addTo(map);
+
+          // Cria o marcador animado (Caminhão)
+          const truckIcon = L.divIcon({
+            className: 'custom-truck-icon',
+            html: '<div style="font-size: 20px; line-height: 26px;">🚚</div>',
+            iconSize: [26, 26],
+            iconAnchor: [13, 13]
+          });
+          
+          truckMarker = L.marker(origin, { icon: truckIcon }).addTo(map);
+
+          // Libera botão de simulação
+          const startBtn = document.getElementById('btn-start-sim');
+          if (startBtn) {
+            startBtn.disabled = false;
+            startBtn.addEventListener('click', startSimulation);
+          }
+          document.getElementById('sim-status').innerText = "Rota calculada! Pronto para simular.";
+        } else {
+          document.getElementById('sim-status').innerHTML = "<span style='color:red;'>Erro ao calcular rota</span>";
+        }
+      })
+      .catch(err => {
+        console.error("OSRM Error:", err);
+        document.getElementById('sim-status').innerHTML = "<span style='color:red;'>Erro de rota (OSRM indisponível)</span>";
+      });
+  }
+
+  function startSimulation() {
+    const startBtn = document.getElementById('btn-start-sim');
+    startBtn.disabled = true;
+    
+    const speedSelect = document.getElementById('sim-speed');
+    const speed = parseInt(speedSelect.value) || 400;
+    
+    currentStep = 0;
+    triggers = { coletado: false, em_transito: false, proximo: false, entregue: false };
+    
+    document.getElementById('sim-status').innerHTML = "Simulação iniciada! 🚀";
+
+    // Cancela intervalo anterior se houver
+    if (simInterval) clearInterval(simInterval);
+    
+    // Inicia a animação passo a passo
+    simInterval = setInterval(animateStep, speed);
+  }
+
+  function animateStep() {
+    if (currentStep >= routeCoordinates.length) {
+      clearInterval(simInterval);
+      document.getElementById('sim-status').innerHTML = "Entrega finalizada com sucesso! ✅";
+      return;
+    }
+
+    const currentCoords = routeCoordinates[currentStep];
+    truckMarker.setLatLng(currentCoords);
+    map.panTo(currentCoords);
+
+    // Progresso percentual
+    const progress = currentStep / (routeCoordinates.length - 1);
+
+    // Gatilhos de eventos
+    if (progress === 0 && !triggers.coletado) {
+      triggers.coletado = true;
+      sendEvent("Coletado", "Mercadoria coletada no CD de Origem e carregada no veículo de transporte.", "Centro de Distribuição");
+    } else if (progress >= 0.3 && progress < 0.7 && !triggers.em_transito) {
+      triggers.em_transito = true;
+      sendEvent("Em Trânsito", "Veículo de entrega em deslocamento pela via expressa.", "Vias principais");
+    } else if (progress >= 0.75 && progress < 0.95 && !triggers.proximo) {
+      triggers.proximo = true;
+      sendEvent("Saiu para Entrega", "O entregador está na vizinhança aproximando-se do destino.", "Vias locais");
+    } else if (progress >= 0.98 && !triggers.entregue) {
+      triggers.entregue = true;
+      sendEvent("Entregue", "Entrega realizada com sucesso. Pacote recebido pelo destinatário.", address);
+    }
+
+    // Avança etapas na animação. Para rotas muito longas, saltamos coordenadas para acelerar a apresentação.
+    const skip = Math.max(1, Math.floor(routeCoordinates.length / 40));
+    currentStep += skip;
+    if (currentStep > routeCoordinates.length - 1 && currentStep - skip < routeCoordinates.length - 1) {
+      currentStep = routeCoordinates.length - 1; // Garante o último ponto
+    }
+  }
+
+  function sendEvent(status, descricao, localizacao) {
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    document.getElementById('sim-status').innerHTML = `Enviando evento: <strong>${status}</strong>...`;
+
+    fetch(`/packages/${packageId}/tracking_events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': token
+      },
+      body: JSON.stringify({
+        tracking_event: {
+          status: status,
+          descricao: descricao,
+          localizacao: localizacao
+        }
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('sim-status').innerHTML = `Evento <strong>${status}</strong> registrado no Banco!`;
+        appendEventToTimeline(data.event);
+        updatePackageStatusUI(status);
+      }
+    })
+    .catch(err => {
+      console.error("Erro ao enviar evento:", err);
+    });
+  }
+
+  function appendEventToTimeline(event) {
+    const container = document.getElementById('timeline-container');
+    if (!container) return;
+
+    // Remove placeholder inicial se for o único
+    const placeholder = container.querySelector('.timeline-item:not(.active)');
+    if (placeholder) placeholder.remove();
+
+    const time = new Date(event.created_at);
+    const timeStr = time.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    const item = document.createElement('div');
+    item.className = 'timeline-item active';
+    item.innerHTML = `
+      <div class="timeline-icon">✓</div>
+      <div class="timeline-content">
+        <div class="timeline-header">
+          <p class="timeline-step">${event.status}</p>
+          <span class="timeline-time">${timeStr}</span>
+        </div>
+        <p class="timeline-desc">
+          ${event.descricao}
+          ${event.localizacao ? '<br/><small style="color: var(--color-blue);">📍 ' + event.localizacao + '</small>' : ''}
+        </p>
+      </div>
+    `;
+
+    const track = container.querySelector('.timeline-track');
+    if (track && track.nextSibling) {
+      container.insertBefore(item, track.nextSibling);
+    } else {
+      container.appendChild(item);
+    }
+  }
+
+  function updatePackageStatusUI(status) {
+    const statusText = document.querySelector('.status-text');
+    const statusDot = document.querySelector('.status-dot');
+    
+    if (statusText) statusText.innerText = status;
+    
+    if (statusDot) {
+      statusDot.className = 'status-dot';
+      const clean = status.toLowerCase();
+      if (clean.includes('pendente') || clean.includes('criado')) {
+        statusDot.classList.add('pendente');
+      } else if (clean.includes('rota') || clean.includes('trânsito') || clean.includes('saiu')) {
+        statusDot.classList.add('rota');
+      } else if (clean.includes('entregue')) {
+        statusDot.classList.add('entregue');
+      } else {
+        statusDot.classList.add('default');
+      }
+    }
+  }
+});
+</script>
