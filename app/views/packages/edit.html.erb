@@ -1,12 +1,148 @@
-<% content_for :title, "Editing package" %>
+<% content_for :title, "Editar Pacote" %>
 
-<h1>Editing package</h1>
+<div class="pkg-wrapper">
+  <!-- Header Section -->
+  <div class="pkg-header">
+    <div class="pkg-header-left">
+      <nav style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 700; margin-bottom: 5px;">
+        Pacotes &gt; <span style="color: var(--color-blue);">Editar Pacote</span>
+      </nav>
+      <h2 class="pkg-title">Editar Pacote</h2>
+    </div>
+  </div>
 
-<%= render "form", package: @package %>
+  <%= form_with(model: @package, class: "bento-grid", local: true) do |form| %>
+    
+    <% if @package.errors.any? %>
+      <div style="grid-column: span 12; background-color: var(--error-container); color: var(--on-error-container); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+        <h4 style="margin: 0 0 10px 0;"><%= pluralize(@package.errors.count, "erro impediu", "erros impediram") %> este pacote de ser salvo:</h4>
+        <ul style="margin: 0; padding-left: 20px;">
+          <% @package.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-<br>
+    <!-- Left Column -->
+    <div class="bento-col-main" style="gap: 30px;">
+      
+      <!-- Card: Identificação -->
+      <div class="card-tonal">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+          <div class="pkg-card-icon">I</div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800;">Identificação do Pacote</h3>
+            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">Metadados e status atual do rastreamento</p>
+          </div>
+        </div>
 
-<div>
-  <%= link_to "Show this package", @package %> |
-  <%= link_to "Back to packages", packages_path %>
+        <div class="bento-row-2">
+          <div class="pkg-form-group">
+            <label class="pkg-form-label">Código de Rastreio</label>
+            <%= form.text_field :codigo_rastreio, class: "pkg-input", readonly: true, style: "color: var(--color-blue); font-weight: 700; font-family: monospace;" %>
+          </div>
+          <div class="pkg-form-group">
+            <label class="pkg-form-label">Status do Envio</label>
+            <%= form.select :status, 
+                options_for_select(['Pendente', 'Coletado', 'Em trânsito', 'Em Rota', 'Entregue', 'Devolvido', 'Cancelado'], @package.status), 
+                {}, { class: "pkg-select" } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Destinatário -->
+      <div class="card-tonal">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+          <div class="pkg-card-icon" style="background-color: rgba(219, 163, 101, 0.2); color: var(--color-gold);">U</div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800;">Dados do Destinatário</h3>
+            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">Informações de contato e local de entrega final</p>
+          </div>
+        </div>
+
+        <div class="pkg-form-group">
+          <label class="pkg-form-label">Nome Completo</label>
+          <%= form.text_field :destinatario, class: "pkg-input" %>
+        </div>
+
+        <div class="pkg-form-group">
+          <label class="pkg-form-label">Endereço de Entrega</label>
+          <%= form.text_area :endereco, class: "pkg-textarea", rows: 3 %>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column -->
+    <div class="bento-col-side" style="gap: 30px;">
+      
+      <!-- Card: Logística -->
+      <div class="card-tonal" style="border: 1px solid rgba(20, 97, 172, 0.1);">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+          <div class="pkg-card-icon" style="background-color: rgba(20, 97, 172, 0.05);">L</div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800;">Logística e Operação</h3>
+            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">Atribuição regional e operacional</p>
+          </div>
+        </div>
+
+        <div class="pkg-form-group">
+          <label class="pkg-form-label">Região de Entrega</label>
+          <%= form.text_field :regiao, class: "pkg-input", placeholder: "Ex: Zona Sul - Setor A" %>
+        </div>
+
+        <div class="pkg-form-group">
+          <label class="pkg-form-label">Motorista Responsável</label>
+          <%= form.collection_select :driver_id, User.where(cargo: 'motorista'), :id, :nome, { prompt: "Selecione um motorista" }, { class: "pkg-select" } %>
+        </div>
+      </div>
+
+      <!-- Card: Especificações -->
+      <div class="card-tonal">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+          <div class="pkg-card-icon" style="background-color: var(--surface-dim); color: var(--text-main);">E</div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800;">Especificações</h3>
+            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">Dimensões físicas da unidade</p>
+          </div>
+        </div>
+
+        <div class="bento-row-2">
+          <div class="pkg-form-group">
+            <label class="pkg-form-label">Peso (kg)</label>
+            <div class="input-icon-wrapper">
+              <%= form.number_field :peso, class: "pkg-input", step: "0.1" %>
+              <span class="input-icon-suffix">KG</span>
+            </div>
+          </div>
+          <div class="pkg-form-group">
+            <label class="pkg-form-label">Dimensões</label>
+            <%= form.text_field :dimensoes, class: "pkg-input", placeholder: "CxLxA (cm)" %>
+          </div>
+        </div>
+
+        <div style="margin-top: 25px; padding: 15px; background-color: rgba(20, 97, 172, 0.05); border-radius: 12px; display: flex; gap: 15px; align-items: flex-start;">
+          <strong style="color: var(--color-blue);">!</strong>
+          <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
+            O cálculo de frete e roteirização será afetado após a alteração destas especificações logísticas.
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Area -->
+      <div class="pkg-submit-area">
+        <%= form.submit "Salvar Alterações", class: "pkg-submit-btn" %>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-top: 10px;">
+          <% back_path = current_user&.admin? ? admin_packages_path : packages_path %>
+          <%= link_to "Voltar para pacotes", back_path, style: "font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-decoration: none;" %>
+          
+          <%= link_to "Ver visualização pública", package_path(@package), style: "font-size: 0.85rem; font-weight: 700; color: var(--color-blue); text-decoration: none;" %>
+        </div>
+      </div>
+
+    </div>
+
+  <% end %>
 </div>

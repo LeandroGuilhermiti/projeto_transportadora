@@ -1,10 +1,248 @@
-<p style="color: green"><%= notice %></p>
+<%
+  status_clean = (@package.status || "Pendente").downcase
+  status_class = "default"
+  status_class = "pendente" if status_clean.include?("pendente") || status_clean.include?("criado")
+  status_class = "rota" if status_clean.include?("rota") || status_clean.include?("trânsito")
+  status_class = "entregue" if status_clean.include?("entregue")
 
-<%= render @package %>
+  # Lógica simples de timeline
+  event_created = @package.created_at
+  event_collected = event_created + 2.hours
+  event_routing = event_created + 4.hours
+  event_delivered = @package.updated_at
 
-<div>
-  <%= link_to "Edit this package", edit_package_path(@package) %> |
-  <%= link_to "Back to packages", packages_path %>
+  # Quais passos estão ativos?
+  step_collected = (status_class == "rota" || status_class == "entregue")
+  step_routing = (status_class == "rota" || status_class == "entregue")
+  step_delivered = (status_class == "entregue")
+%>
 
-  <%= button_to "Destroy this package", @package, method: :delete %>
+<div class="pkg-wrapper">
+  
+  <!-- Header Section -->
+  <div class="pkg-header">
+    <div class="pkg-header-left">
+      <% back_path = current_user&.admin? ? admin_packages_path : packages_path %>
+      <%= link_to back_path, class: "pkg-back-link" do %>
+        &larr; Voltar para Entregas
+      <% end %>
+      <h2 class="pkg-title">Detalhes da Entrega</h2>
+      <p class="pkg-id">#<%= @package.codigo_rastreio %></p>
+    </div>
+    <div class="pkg-actions">
+      <button onclick="window.print()" class="btn-pkg btn-pkg-outline">
+        Imprimir Etiqueta
+      </button>
+      <% if current_user&.admin? %>
+        <%= link_to edit_package_path(@package), class: "btn-pkg btn-pkg-primary" do %>
+          Editar Pedido
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Bento Grid Layout -->
+  <div class="bento-grid">
+    
+    <!-- Main Details Col -->
+    <div class="bento-col-main">
+      
+      <!-- Row 1: Status & Important Info -->
+      <div class="bento-row-2">
+        <div class="card-tonal">
+          <div class="status-container">
+            <div>
+              <span class="card-label">Status Atual</span>
+              <div class="status-indicator">
+                <div class="status-dot <%= status_class %>"></div>
+                <h3 class="status-text"><%= @package.status || "Pendente" %></h3>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 10px;">
+                Última atualização: <%= @package.updated_at.strftime("%d/%m/%Y às %H:%M") %>
+              </p>
+            </div>
+            <div class="status-footer">
+              <p>O acompanhamento é atualizado a cada evento.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-tonal">
+          <span class="card-label">Dados do Pacote</span>
+          <div class="pkg-data-list">
+            <div class="pkg-data-item">
+              <span class="data-key">Código Rastreio</span>
+              <span class="data-value"><%= @package.codigo_rastreio %></span>
+            </div>
+            <div class="pkg-data-item">
+              <span class="data-key">Peso Estimado</span>
+              <span class="data-value"><%= @package.peso.present? ? "#{@package.peso} kg" : "Não especificado" %></span>
+            </div>
+            <div class="pkg-data-item">
+              <span class="data-key">Dimensões</span>
+              <span class="data-value"><%= @package.dimensoes.present? ? @package.dimensoes : "Não especificado" %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Origin & Destination -->
+      <div class="bento-row-2">
+        <div class="card-surface">
+          <div class="loc-header">
+            <div class="loc-icon-wrapper origin">W</div>
+            <div>
+              <span class="card-label">Coleta (Origem)</span>
+              <h4 class="loc-title">Central Operacional</h4>
+            </div>
+          </div>
+          <p class="loc-address">
+            Ponto de origem padrão<br/>
+            (Verificar detalhes na central)
+          </p>
+          <div class="loc-contact">
+            Rotagily Logistics Intelligence
+          </div>
+        </div>
+
+        <div class="card-accent">
+          <div class="loc-header">
+            <div class="loc-icon-wrapper dest">D</div>
+            <div>
+              <span class="card-label">Entrega (Destino)</span>
+              <h4 class="loc-title"><%= @package.destinatario %></h4>
+            </div>
+          </div>
+          <p class="loc-address">
+            <%= @package.endereco %>
+          </p>
+          <div class="loc-contact">
+            <%= @package.regiao || "Região padrão" %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Driver & Vehicle -->
+      <div class="card-tonal">
+        <div class="driver-header">
+          <span class="card-label">Motorista Responsável</span>
+          <% if @package.driver.present? %>
+            <span class="driver-badge">ATRIBUÍDO</span>
+          <% else %>
+            <span class="driver-badge" style="background-color: #fef08a; color: #854d0e;">NÃO ATRIBUÍDO</span>
+          <% end %>
+        </div>
+        
+        <div class="driver-profile">
+          <% if @package.driver.present? %>
+            <img class="driver-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCms578D6DyXZbpowQb-dTxKtGzlHfXlTR-IWMUJK-iRbqBamQzFJwvtLfK_F9bphCeImfEaQBepQVjskfuQE3STnzb8sM5PNEF0BUeHjel8fDnf15cljkvofHE34nyZCMsYwpGXypsfPfNQITP5bxtd3qEtRETJYXLZHFVYM_slqlyGHFOOdUTgztP0_mqJdv_1p9Cdw4YaiJ4HEKHEf_8kKGUesFJ0Vg58taJVpoCHdY1rdlHMiXBlmJ1fm9WL1mKrSAoOuU1BKQ" alt="Motorista">
+            <div class="driver-info-grid">
+              <div class="driver-info-item">
+                <p class="lbl">Nome Completo</p>
+                <p class="val"><%= @package.driver.nome %></p>
+              </div>
+              <div class="driver-info-item">
+                <p class="lbl">E-mail</p>
+                <p class="val" style="word-break: break-all; font-size: 0.9rem;"><%= @package.driver.email %></p>
+              </div>
+              <div class="driver-info-item">
+                <p class="lbl">Região</p>
+                <p class="val"><%= @package.driver.regiao_atuacao || "Geral" %></p>
+              </div>
+            </div>
+          <% else %>
+            <div class="driver-info-grid" style="flex: 1;">
+              <div style="grid-column: span 3; text-align: center; padding: 20px;">
+                <p style="margin: 0 0 15px 0; color: var(--text-muted);">Nenhum motorista foi atribuído a esta entrega ainda.</p>
+                <% if current_user&.admin? %>
+                  <%= link_to "Atribuir Motorista", edit_package_path(@package), class: "btn-pkg btn-pkg-primary", style: "display: inline-block;" %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Right Timeline/Map Col -->
+    <div class="bento-col-side">
+      
+      <!-- Map Visualization -->
+      <div class="map-placeholder">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoGxS31OXF2OGjvSucE9ZNEN2WdvOMDd5kA827hN4BhfEMxnTu8MC9rljAP_N-CP7MqOpSGc-ol8LYdRMWlMJvhcVtx8EP4XHHhuwtPTzKJWwETNbDnpGM6PZ35zjE-qdPLNKbl5apR_Lcm9MPPDM4CI8EDMy_EKQk6wtgprBcQGG2TZzT0Uf6WEgxt_1RzhUcdDtbSKaZOPPKiEhXbOCFQx_yAR_-B7SGLrh3gtfPGwb7velk0hqSe5LO8vU7P1glPaNPwnaK8aM" alt="Map">
+        <div class="map-overlay">
+          <div class="map-tag">
+            <div class="pulse-dot"></div>
+            Rastreamento estimado
+          </div>
+          <div class="map-route-visual">
+            <div class="map-node">O</div>
+            <div class="map-line"></div>
+            <div class="map-node dest">D</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline Section -->
+      <div class="card-tonal" style="flex: 1;">
+        <h3 class="timeline-title">Histórico de Eventos</h3>
+        
+        <div class="timeline-container">
+          <div class="timeline-track"></div>
+
+          <% if step_delivered %>
+            <div class="timeline-item active">
+              <div class="timeline-icon">✓</div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <p class="timeline-step">Entregue</p>
+                  <span class="timeline-time"><%= event_delivered.strftime("%H:%M") %></span>
+                </div>
+                <p class="timeline-desc">Pacote entregue ao destinatário com sucesso.</p>
+              </div>
+            </div>
+          <% end %>
+
+          <div class="timeline-item <%= step_routing ? 'active' : '' %>">
+            <div class="timeline-icon">✓</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <p class="timeline-step">Em Rota / Em trânsito</p>
+                <span class="timeline-time"><%= step_routing ? event_routing.strftime("%H:%M") : "--:--" %></span>
+              </div>
+              <p class="timeline-desc">O pacote está a caminho do destino.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item <%= step_collected ? 'active' : '' %>">
+            <div class="timeline-icon">✓</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <p class="timeline-step">Coletado</p>
+                <span class="timeline-time"><%= step_collected ? event_collected.strftime("%H:%M") : "--:--" %></span>
+              </div>
+              <p class="timeline-desc">Mercadoria retirada na origem e bipada no sistema.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item active">
+            <div class="timeline-icon">✓</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <p class="timeline-step">Pedido Criado</p>
+                <span class="timeline-time"><%= event_created.strftime("%d/%m %H:%M") %></span>
+              </div>
+              <p class="timeline-desc">Informações de envio registradas no sistema.</p>
+            </div>
+          </div>
+
+        </div>
+        
+        <button class="btn-pkg-block">Ver Histórico Completo</button>
+      </div>
+
+    </div>
+
+  </div>
 </div>
