@@ -1,0 +1,81 @@
+<% content_for :title, "Configurações" %>
+
+<div class="st-wrapper">
+  
+  <div class="st-header">
+    <h2 class="st-title">Configurações</h2>
+    <p class="st-subtitle">Gerencie suas preferências de conta e configurações do sistema.</p>
+  </div>
+
+  <!-- User Profile Section -->
+  <section class="st-section">
+    <div class="st-section-title">
+      <div class="st-section-icon">👤</div>
+      Perfil do Usuário
+    </div>
+
+    <div class="st-profile-grid">
+      <!-- Avatar Area -->
+      <div class="st-avatar-container">
+        <%= current_user&.nome&.chars&.first&.upcase || "A" %>
+        <button class="st-avatar-btn" title="Alterar foto">
+          ✎
+        </button>
+      </div>
+
+      <!-- Form Area -->
+      <div class="st-form-fields">
+        <div class="st-field st-field-full">
+          <label class="st-label">Nome Completo</label>
+          <input type="text" class="st-input" value="<%= current_user&.nome || "Admin" %>">
+        </div>
+
+        <div class="st-field st-field-full">
+          <label class="st-label">E-mail Corporativo</label>
+          <input type="email" class="st-input" value="<%= current_user&.email || "admin@rotagily.com" %>">
+        </div>
+        
+        <div class="st-field-full" style="margin-top: 10px;">
+          <button class="st-btn st-btn-outline" style="display: flex; align-items: center; gap: 8px;">
+            🔒 Alterar Senha de Acesso
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preferences Section -->
+  <section class="st-section">
+    <div class="st-section-title">
+      <div class="st-section-icon">⚙️</div>
+      Preferências do Sistema
+    </div>
+
+    <div class="st-prefs-grid">
+      <!-- Language -->
+      <div class="st-field">
+        <label class="st-label" style="margin-bottom: 10px;">Idioma do Painel</label>
+        <div class="st-toggle-group">
+          <button class="st-toggle-btn active">🇧🇷 Português</button>
+          <button class="st-toggle-btn">🇺🇸 Inglês</button>
+        </div>
+      </div>
+
+      <!-- Theme -->
+      <div class="st-field">
+        <label class="st-label" style="margin-bottom: 10px;">Tema Visual</label>
+        <div class="st-toggle-group">
+          <button id="btn-theme-light" class="st-toggle-btn active" onclick="setTheme('light')">☀️ Light</button>
+          <button id="btn-theme-dark" class="st-toggle-btn" onclick="setTheme('dark')">🌙 Dark</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Global Actions -->
+  <div class="st-footer">
+    <button class="st-btn st-btn-outline">Descartar Alterações</button>
+    <button class="st-btn st-btn-primary">Salvar Configurações</button>
+  </div>
+
+</div>

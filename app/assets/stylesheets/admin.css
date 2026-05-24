@@ -3,25 +3,49 @@
    ============================== */
 
 :root {
-  --bg-dark: #f4f7fb;
+  --sidebar-bg: #ffffff;
   --sidebar-bg: #ffffff;
   --text-main: #111827;
   --text-muted: #6b7280;
   --accent-blue: #002244;
   --accent-gold: #f5a623;
   --accent-green: #10b981;
+  --bg-body: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --input-bg: #f8fafc;
+  --color-blue: #1461ac;
+  --color-dk-blue: #0b3d6e;
+  --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.04);
+}
+
+.dark-mode {
+  --sidebar-bg: #0f172a;
+  --bg-body: #0f172a;
+  --bg-card: #1e293b;
+  --bg-sidebar: #0f172a;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --input-bg: #0f172a;
+  --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 
 /* ==============================
    BASE / LAYOUT ADMIN
    ============================== */
 
-body.admin-body {
+.admin-body {
   margin: 0;
-  padding: 0;
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-dark);
+  background-color: var(--bg-body);
   color: var(--text-main);
+  transition: background-color 0.3s, color 0.3s;
   height: 100vh;
   box-sizing: border-box;
 }
@@ -126,15 +150,17 @@ body.admin-body {
   justify-content: space-between;
   align-items: center;
   padding: 15px 30px;
-  background: var(--bg-dark);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .search-box input {
   width: 300px;
   padding: 10px 15px;
   border-radius: 20px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  border: 1px solid var(--border-color);
+  background: var(--bg-body);
+  color: var(--text-main);
   font-family: inherit;
 }
 
@@ -164,10 +190,10 @@ body.admin-body {
    ============================== */
 
 .kpi-card {
-  background: #fff;
+  background: var(--bg-card);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-light);
 }
 
 .kpi-card p {

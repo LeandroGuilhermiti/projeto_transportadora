@@ -15,7 +15,50 @@
     <%= stylesheet_link_tag "admin_nova_entrega", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "package_details", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "vehicles", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "settings", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <script>
+      function setTheme(theme) {
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark-mode');
+          localStorage.setItem('theme', 'dark');
+          updateThemeButtons('dark');
+        } else {
+          document.documentElement.classList.remove('dark-mode');
+          localStorage.setItem('theme', 'light');
+          updateThemeButtons('light');
+        }
+      }
+
+      function updateThemeButtons(theme) {
+        const btnLight = document.getElementById('btn-theme-light');
+        const btnDark = document.getElementById('btn-theme-dark');
+        if (btnLight && btnDark) {
+          if (theme === 'dark') {
+            btnDark.classList.add('active');
+            btnLight.classList.remove('active');
+          } else {
+            btnLight.classList.add('active');
+            btnDark.classList.remove('active');
+          }
+        }
+      }
+
+      // Evita o flash de tela branca antes do carregamento completo do DOM
+      const initTheme = localStorage.getItem('theme') || 'light';
+      if (initTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+
+      // Atualiza os botões visuais quando os elementos existem
+      document.addEventListener("turbo:load", function() {
+        updateThemeButtons(localStorage.getItem('theme') || 'light');
+      });
+      document.addEventListener("DOMContentLoaded", function() {
+        updateThemeButtons(localStorage.getItem('theme') || 'light');
+      });
+    </script>
   </head>
 
   <body class="admin-body">
@@ -33,6 +76,7 @@
           <a href="<%= admin_packages_path %>" class="nav-item <%= current_page?(admin_packages_path) ? 'active' : '' %>">Pacotes</a>
           <a href="<%= vehicles_path %>" class="nav-item <%= current_page?(vehicles_path) ? 'active' : '' %>">Veículos</a>
           <a href="<%= admin_drivers_path %>" class="nav-item <%= current_page?(admin_drivers_path) ? 'active' : '' %>">Motoristas</a>
+          <a href="<%= admin_settings_path %>" class="nav-item <%= current_page?(admin_settings_path) ? 'active' : '' %>">Configurações</a>
         </nav>
         <div class="sidebar-footer">
           <%= link_to "+ Novo Pacote", new_admin_package_path, class: "btn-nova-entrega", data: { turbo: false } %>

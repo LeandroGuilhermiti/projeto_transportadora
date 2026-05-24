@@ -17,10 +17,10 @@
 }
 
 .kpi-card {
-  background: #fff;
+  background: var(--bg-card);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-light);
 }
 
 .kpi-card p {
@@ -51,10 +51,10 @@
 }
 
 .map-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-light);
   position: relative;
 }
 
@@ -144,11 +144,11 @@
 }
 
 .alert-card {
-  background: #fff;
+  background: var(--bg-card);
   border-left: 4px solid #ef4444;
   padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-light);
 }
 
 .alert-card.warning {
@@ -201,11 +201,11 @@
 
 .priority-dispatch {
   grid-column: 1 / -1;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12px;
   padding: 20px;
   margin-top: 20px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-light);
 }
 
 .dispatch-table {
@@ -219,12 +219,12 @@
   color: var(--text-muted);
   font-size: 0.75rem;
   text-transform: uppercase;
-  border-bottom: 2px solid #f3f4f6;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .dispatch-table td {
   padding: 15px 10px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-color);
   font-size: 0.9rem;
 }
 

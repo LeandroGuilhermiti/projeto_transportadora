@@ -13,6 +13,16 @@
   --status-delivered: #2e7d32; /* Verde */
 }
 
+.dark-mode {
+  --surface: #0f172a;
+  --surface-alt: #1e293b;
+  --surface-tonal: #1e293b;
+  --surface-dim: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+}
+
 /* Layout Principal */
 .pkg-wrapper {
   max-width: 1400px;
@@ -237,7 +247,7 @@
 }
 
 .loc-icon-wrapper.origin {
-  background-color: white;
+  background-color: var(--surface);
   color: var(--color-blue);
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
@@ -393,7 +403,7 @@
   height: 40px;
   border-radius: 50%;
   background-color: var(--color-blue);
-  border: 4px solid white;
+  border: 4px solid var(--surface);
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   display: flex;
   align-items: center;
@@ -637,7 +647,7 @@
 .pkg-select:focus,
 .pkg-textarea:focus {
   outline: none;
-  background-color: white;
+  background-color: var(--surface);
   border-color: rgba(20, 97, 172, 0.2);
   box-shadow: 0 0 0 4px rgba(20, 97, 172, 0.1);
 }

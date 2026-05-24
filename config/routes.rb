@@ -8,6 +8,7 @@ Rails.application.routes.draw do
 
   namespace :admin do
     get "dashboard", to: "dashboard#index"
+    get "settings", to: "settings#index"
     resources :packages, only: [:index, :new, :create]
     resources :entregas, only: [:index, :new, :create]
     resources :drivers, only: [:index]
