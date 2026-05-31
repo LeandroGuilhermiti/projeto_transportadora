@@ -1,0 +1,646 @@
+/* ==========================================================================
+   ACESSORIOS E LAYOUT PARA ACOMPANHAR ROTAS (SIMULADOR)
+   ========================================================================== */
+
+.rotas-container {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rotas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 20px;
+}
+
+.rotas-header h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.rotas-header .subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 5px 0 0 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.inline-form {
+  display: inline-block;
+}
+
+.btn-avancar-sim, .btn-limpar-sim {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-avancar-sim {
+  background: var(--color-blue);
+  color: #ffffff;
+}
+
+.btn-avancar-sim:hover {
+  background: var(--color-dk-blue);
+  transform: translateY(-1px);
+}
+
+.btn-limpar-sim {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.btn-limpar-sim:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   ROTAS GRID (MAPA + PAINEL DE CONTROLE)
+   ========================================================================== */
+
+.rotas-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 25px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .rotas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Card do Mapa --- */
+.map-card-wrapper {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.card-header-styled {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.dark-mode .card-header-styled {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-header-styled h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.pulse-indicator {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-green);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pulse-indicator::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
+  animation: blink-green 1.5s infinite;
+}
+
+@keyframes blink-green {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* --- Container e Imagem do Mapa --- */
+.map-container-relative {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 912; /* Mantém a proporção do mapa do Brasil original */
+  background: #0d1b2e;
+  overflow: hidden;
+}
+
+.brazil-map-image {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* --- Pins dos Caminhões --- */
+.truck-pin {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f5a623;
+  border: 2px solid #ffffff;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.truck-icon {
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* Estilos de Caminhões baseados no Status */
+.truck-pendente {
+  background: #64748b;
+  animation: float-truck-pendente 2s infinite ease-in-out;
+}
+.truck-processando {
+  background: #3b82f6;
+  animation: pulse-blue-glow 1.5s infinite;
+}
+.truck-transito {
+  background: #10b981;
+  animation: pulse-green-glow 1.5s infinite;
+}
+.truck-rota {
+  background: #8b5cf6;
+  animation: pulse-purple-glow 1.5s infinite;
+}
+.truck-entregue {
+  background: #10b981;
+  border-color: #d1fae5;
+}
+
+/* Animações e Brilhos */
+@keyframes pulse-blue-glow {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+@keyframes pulse-green-glow {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes pulse-purple-glow {
+  0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(139, 92, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+}
+
+/* --- Tooltip do Caminhão --- */
+.truck-tooltip {
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: #0f172a;
+  color: #f8fafc;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 14px;
+  width: 250px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 50;
+  transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+}
+
+.truck-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #0f172a transparent transparent transparent;
+}
+
+.truck-pin:hover {
+  z-index: 30;
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+.truck-pin:hover .truck-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.tooltip-header strong {
+  font-size: 0.88rem;
+  color: #38bdf8;
+}
+
+.tooltip-status-pill {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.tooltip-status-pill.Pendente { background: #475569; color: #cbd5e1; }
+.tooltip-status-pill.Processando { background: #1e3a8a; color: #93c5fd; }
+.tooltip-status-pill.em_transito { background: #064e3b; color: #6ee7b7; }
+.tooltip-status-pill.em\ rota { background: #4c1d95; color: #c4b5fd; }
+.tooltip-status-pill.Entregue { background: #064e3b; color: #6ee7b7; }
+
+.tooltip-body p {
+  margin: 4px 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #94a3b8;
+}
+
+.tooltip-body p strong {
+  color: #cbd5e1;
+}
+
+/* ==========================================================================
+   PAINEL DE CONTROLE (COLUNA DIREITA)
+   ========================================================================== */
+
+.control-panel-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.panel-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+}
+
+.panel-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+/* --- Form --- */
+.styled-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.form-group-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.form-control-styled {
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  color: var(--text-main);
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.form-control-styled:focus {
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 3px rgba(20, 97, 172, 0.12);
+}
+
+.btn-submit-styled {
+  background: var(--accent-gold);
+  color: #000000;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  margin-top: 5px;
+}
+
+.btn-submit-styled:hover {
+  background: #e09415;
+  transform: translateY(-1px);
+}
+
+.btn-submit-styled:active {
+  transform: translateY(0);
+}
+
+/* --- Alertas de Incidência --- */
+.alerts-card {
+  display: flex;
+  flex-direction: column;
+  max-height: 480px;
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+
+.alerts-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.alerts-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.incident-alert-item {
+  display: flex;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--input-bg);
+  box-shadow: var(--shadow-light);
+}
+
+.alert-indicator {
+  width: 5px;
+  flex-shrink: 0;
+}
+
+.alert-content {
+  padding: 10px 14px;
+  flex: 1;
+}
+
+.alert-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-bottom: 4px;
+}
+
+.alert-meta strong {
+  color: var(--color-blue);
+}
+
+.alert-meta span {
+  color: var(--text-muted);
+}
+
+.alert-desc {
+  font-size: 0.8rem;
+  margin: 0;
+  line-height: 1.4;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.alert-loc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 6px;
+}
+
+/* Cores por tipo de alerta */
+.incident-alert-item.danger .alert-indicator { background-color: #ef4444; }
+.incident-alert-item.danger { border-left: 2px solid #ef4444; }
+
+.incident-alert-item.warning .alert-indicator { background-color: #f5a623; }
+.incident-alert-item.warning { border-left: 2px solid #f5a623; }
+
+.incident-alert-item.info .alert-indicator { background-color: #3b82f6; }
+.incident-alert-item.info { border-left: 2px solid #3b82f6; }
+
+.incident-alert-item.fiscal .alert-indicator { background-color: #f97316; }
+.incident-alert-item.fiscal { border-left: 2px solid #f97316; }
+
+.incident-alert-item.weather .alert-indicator { background-color: #64748b; }
+.incident-alert-item.weather { border-left: 2px solid #64748b; }
+
+.incident-alert-item.attempt .alert-indicator { background-color: #a855f7; }
+.incident-alert-item.attempt { border-left: 2px solid #a855f7; }
+
+.empty-alerts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  color: var(--text-muted);
+  text-align: center;
+  gap: 8px;
+}
+
+.shield-icon {
+  font-size: 2rem;
+}
+
+.empty-alerts p {
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ==========================================================================
+   TABELA DE VIAGENS
+   ========================================================================== */
+
+.rotas-table-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.styled-rotas-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+.styled-rotas-table th {
+  background: rgba(0, 0, 0, 0.02);
+  color: var(--text-muted);
+  font-weight: 700;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.dark-mode .styled-rotas-table th {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.styled-rotas-table td {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.styled-rotas-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.styled-rotas-table tbody tr:hover {
+  background: rgba(0, 34, 68, 0.015);
+}
+
+.dark-mode .styled-rotas-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+/* --- Badges de Status na Tabela --- */
+.status-badge-styled {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.badge-pendente {
+  background: #f1f5f9;
+  color: #475569;
+}
+.badge-pendente .badge-dot { background: #64748b; }
+
+.badge-processando {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+.badge-processando .badge-dot { background: #3b82f6; }
+
+.badge-transito {
+  background: #ecfdf5;
+  color: #047857;
+}
+.badge-transito .badge-dot { background: #10b981; }
+
+.badge-rota {
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+.badge-rota .badge-dot { background: #8b5cf6; }
+
+.badge-entregue {
+  background: #ecfdf5;
+  color: #047857;
+}
+.badge-entregue .badge-dot { background: #10b981; }
+
+.btn-action-sm-styled {
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+  transition: all 0.15s;
+}
+
+.btn-action-sm-styled:hover {
+  background: var(--border-color);
+  border-color: var(--text-muted);
+}
+
+.empty-table-cell {
+  text-align: center;
+  padding: 40px !important;
+}
+
+.empty-table-state {
+  color: var(--text-muted);
+}

@@ -39,6 +39,6 @@ class Admin::PackagesController < ApplicationController
   private
 
   def package_params
-    params.require(:package).permit(:codigo_rastreio, :destinatario, :endereco, :peso, :dimensoes)
+    params.require(:package).permit(:codigo_rastreio, :destinatario, :endereco, :peso, :dimensoes, :regiao)
   end
 end

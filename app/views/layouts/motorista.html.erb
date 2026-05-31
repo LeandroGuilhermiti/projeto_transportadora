@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Rotagily - Admin Dashboard</title>
+    <title>Rotagily - Área do Motorista</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -9,13 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "admin", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "admin_dashboard", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "admin_entregas", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "admin_motoristas", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "admin_nova_entrega", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "package_details", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "vehicles", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "settings", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "admin_rotas", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
@@ -66,34 +59,29 @@
     <div class="admin-wrapper">
       <aside class="admin-sidebar">
         <div class="sidebar-brand">
-          <%= link_to admin_dashboard_path, style: "text-decoration: none; color: inherit;" do %>
+          <div style="text-decoration: none; color: inherit;">
             <h3>Rotagily</h3>
-            <p>LOGÍSTICA INTELIGENTE</p>
-          <% end %>
+            <p>CONDUÇÃO LOGÍSTICA</p>
+          </div>
         </div>
         <nav class="sidebar-nav">
-          <a href="<%= admin_dashboard_path %>" class="nav-item <%= current_page?(admin_dashboard_path) ? 'active' : '' %>">Dashboard</a>
-          <a href="<%= admin_entregas_path %>" class="nav-item <%= current_page?(admin_entregas_path) ? 'active' : '' %>">Entregas</a>
-          <a href="<%= admin_packages_path %>" class="nav-item <%= current_page?(admin_packages_path) ? 'active' : '' %>">Pacotes</a>
-          <a href="<%= vehicles_path %>" class="nav-item <%= current_page?(vehicles_path) ? 'active' : '' %>">Veículos</a>
-          <a href="<%= admin_drivers_path %>" class="nav-item <%= current_page?(admin_drivers_path) ? 'active' : '' %>">Motoristas</a>
-          <a href="<%= admin_rotas_path %>" class="nav-item <%= current_page?(admin_rotas_path) ? 'active' : '' %>">Acompanhar Rotas</a>
-          <a href="<%= admin_settings_path %>" class="nav-item <%= current_page?(admin_settings_path) ? 'active' : '' %>">Configurações</a>
+          <a href="<%= motorista_rotas_path %>" class="nav-item <%= current_page?(motorista_rotas_path) ? 'active' : '' %>">Minhas Rotas</a>
         </nav>
-        <div class="sidebar-footer">
-          <%= link_to "+ Novo Pacote", new_admin_package_path, class: "btn-nova-entrega", data: { turbo: false } %>
+        <div class="sidebar-footer" style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.75rem;">
+          Portal do Condutor v1.0
         </div>
       </aside>
 
       <div class="admin-main-content">
         <header class="admin-topbar">
           <div class="search-box">
-             <input type="text" placeholder="Pesquisar entregas, motoristas ou placas...">
+             <!-- Vazio para motorista ou informativo -->
+             <span style="font-size: 0.85rem; color: var(--text-muted);">Painel de Controle da Viagem</span>
           </div>
           <div class="user-profile">
             <div class="profile-text">
-              <strong><%= current_user&.nome || "Admin" %></strong>
-              <span>Logistics Manager</span>
+              <strong><%= current_user&.nome || "Motorista" %></strong>
+              <span>Condutor Profissional</span>
             </div>
             <%= button_to "Sair", destroy_user_session_path, method: :delete, class: "btn btn-sm btn-outline-danger", style: "margin-left: 10px;" %>
           </div>

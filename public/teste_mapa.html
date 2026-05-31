@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Rotagily — Calibrador de Coordenadas do Mapa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f5a623;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* ── MAP ── */
+    .map-wrapper {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 16px;
+      position: relative;
+    }
+
+    #map-container {
+      position: relative;
+      width: 100%;
+      /* maintain aspect ratio 1000:912 */
+      aspect-ratio: 1000 / 912;
+      cursor: crosshair;
+      background: #0d1b2e;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    #map-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* coordinate dot */
+    .capital-dot {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f5a623;
+      border: 2px solid #fff;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 0 6px rgba(245, 166, 35, 0.7);
+      z-index: 10;
+    }
+
+    .capital-dot:hover {
+      transform: translate(-50%, -50%) scale(1.6);
+      box-shadow: 0 0 14px rgba(245, 166, 35, 1);
+      z-index: 20;
+    }
+
+    .capital-dot.selected {
+      background: #10b981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.9);
+    }
+
+    /* tooltip */
+    .dot-tooltip {
+      position: absolute;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 30;
+      transform: translate(-50%, calc(-100% - 10px));
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .dot-tooltip strong {
+      color: #f5a623;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .dot-tooltip code {
+      color: #94a3b8;
+      font-size: 0.75rem;
+    }
+
+    /* click crosshair */
+    .click-marker {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ef4444;
+      border: 2px solid #fff;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 25;
+      animation: blink-red 1s infinite;
+    }
+
+    @keyframes blink-red {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    /* ── SIDE PANEL ── */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .card h3 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+
+    /* click info */
+    #click-info {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    #click-info .coords {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #10b981;
+      font-family: monospace;
+      margin: 8px 0;
+    }
+
+    #click-info .hint {
+      font-size: 0.75rem;
+      color: #475569;
+    }
+
+    #copy-btn {
+      margin-top: 10px;
+      background: #10b981;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      display: none;
+    }
+
+    #copy-btn:hover {
+      background: #059669;
+    }
+
+    /* capital list */
+    .capital-list {
+      max-height: 420px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #334155 transparent;
+    }
+
+    .capital-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 0.82rem;
+    }
+
+    .capital-item:hover {
+      background: #263346;
+    }
+
+    .capital-item.active {
+      background: #1a3a2a;
+    }
+
+    .capital-item .name {
+      font-weight: 500;
+      color: #e2e8f0;
+    }
+
+    .capital-item .pos {
+      font-family: monospace;
+      font-size: 0.72rem;
+      color: #64748b;
+    }
+
+    .capital-item .pos.edited {
+      color: #f5a623;
+    }
+
+    /* legend */
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot-legend {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ruby output */
+    #ruby-output {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 0.72rem;
+      color: #7dd3fc;
+      white-space: pre;
+      overflow-x: auto;
+      max-height: 300px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    #ruby-output .changed {
+      color: #f5a623;
+    }
+
+    #copy-ruby-btn {
+      margin-top: 8px;
+      background: #1e40af;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      width: 100%;
+    }
+
+    #copy-ruby-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .instructions {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .instructions strong {
+      color: #f5a623;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🗺️ Rotagily — Calibrador de Coordenadas</h1>
+  <p class="subtitle">
+    Clique em qualquer ponto do mapa para obter coordenadas percentuais exatas.
+    Clique em um marcador de capital para mover sua posição.
+  </p>
+
+  <div class="layout">
+
+    <!-- MAP -->
+    <div class="map-wrapper">
+      <div id="map-container">
+        <img src="mapa-brasil.svg" alt="Mapa do Brasil" id="brazil-svg">
+        <!-- dots rendered by JS -->
+      </div>
+    </div>
+
+    <!-- SIDE PANEL -->
+    <div class="panel">
+
+      <!-- Click info -->
+      <div class="card">
+        <h3>📍 Coordenada Clicada</h3>
+        <div id="click-info">
+          <span>Clique no mapa para ver as coordenadas</span>
+          <div class="coords" id="coords-display" style="display:none"></div>
+          <div class="hint" id="coords-hint"></div>
+          <button id="copy-btn" onclick="copyCoords()">Copiar</button>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="card">
+        <h3>🧭 Legenda</h3>
+        <div class="legend">
+          <div class="legend-row">
+            <div class="dot-legend" style="background:#f5a623;border:2px solid #fff"></div>
+            <span>Capital mapeada (posição atual)</span>
+          </div>
+          <div class="legend-row">
+            <div class="dot-legend" style="background:#10b981;border:2px solid #fff"></div>
+            <span>Capital selecionada (clique para mover)</span>
+          </div>
+          <div class="legend-row">
+            <div class="dot-legend" style="background:#ef4444;border:2px solid #fff"></div>
+            <span>Último ponto clicado no mapa</span>
+          </div>
+        </div>
+        <div class="instructions" style="margin-top:12px">
+          <strong>Como usar:</strong><br>
+          1. Clique em um marcador dourado para selecioná-lo<br>
+          2. Clique no mapa para mover o marcador para a posição correta<br>
+          3. Repita para cada capital<br>
+          4. Copie o código Ruby gerado abaixo
+        </div>
+      </div>
+
+      <!-- Capital list -->
+      <div class="card">
+        <h3>📋 Capitais (clique para selecionar)</h3>
+        <div class="capital-list" id="capital-list"></div>
+      </div>
+
+      <!-- Ruby output -->
+      <div class="card">
+        <h3>💎 Código Ruby para package.rb</h3>
+        <div id="ruby-output"></div>
+        <button id="copy-ruby-btn" onclick="copyRuby()">📋 Copiar código Ruby</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ── DATA ──────────────────────────────────────────────────────────────────
+    // Coordenadas iniciais (top%, left%) baseadas no viewBox 1000x912
+    // Você vai ajustar clicando no mapa!
+    const capitals = [
+      { key: "Manaus - AM", top: 18, left: 30 },
+      { key: "Belém - PA", top: 20, left: 55 },
+      { key: "Macapá - AP", top: 10, left: 60 },
+      { key: "Boa Vista - RR", top: 8, left: 36 },
+      { key: "Porto Velho - RO", top: 31, left: 27 },
+      { key: "Rio Branco - AC", top: 33, left: 19 },
+      { key: "Cuiabá - MT", top: 43, left: 38 },
+      { key: "Palmas - TO", top: 35, left: 52 },
+      { key: "São Luís - MA", top: 20, left: 63 },
+      { key: "Teresina - PI", top: 24, left: 67 },
+      { key: "Fortaleza - CE", top: 18, left: 74 },
+      { key: "Natal - RN", top: 22, left: 79 },
+      { key: "João Pessoa - PB", top: 25, left: 79 },
+      { key: "Recife - PE", top: 27, left: 79 },
+      { key: "Maceió - AL", top: 30, left: 77 },
+      { key: "Aracaju - SE", top: 32, left: 76 },
+      { key: "Salvador - BA", top: 36, left: 73 },
+      { key: "Goiânia - GO", top: 46, left: 47 },
+      { key: "Brasília - DF", top: 44, left: 50 },
+      { key: "Campo Grande - MS", top: 52, left: 40 },
+      { key: "Belo Horizonte - MG", top: 50, left: 62 },
+      { key: "Vitória - ES", top: 52, left: 68 },
+      { key: "Rio de Janeiro - RJ", top: 56, left: 64 },
+      { key: "São Paulo - SP", top: 57, left: 57 },
+      { key: "Curitiba - PR", top: 64, left: 56 },
+      { key: "Florianópolis - SC", top: 69, left: 56 },
+      { key: "Porto Alegre - RS", top: 74, left: 52 },
+    ];
+
+    // track original coords for highlighting changes
+    const originalCoords = capitals.map(c => ({ top: c.top, left: c.left }));
+
+    let selectedIndex = null;
+    let lastClickTop = null;
+    let lastClickLeft = null;
+    let clickMarkerEl = null;
+
+    const container = document.getElementById('map-container');
+    const coordsDisplay = document.getElementById('coords-display');
+    const coordsHint = document.getElementById('coords-hint');
+    const copyBtn = document.getElementById('copy-btn');
+    const clickInfoSpan = document.querySelector('#click-info > span');
+
+    // ── RENDER DOTS ───────────────────────────────────────────────────────────
+    function renderDots() {
+      // remove old dots
+      document.querySelectorAll('.capital-dot').forEach(el => el.remove());
+
+      capitals.forEach((cap, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'capital-dot' + (selectedIndex === i ? ' selected' : '');
+        dot.style.top = cap.top + '%';
+        dot.style.left = cap.left + '%';
+        dot.dataset.index = i;
+
+        // tooltip
+        const tip = document.createElement('div');
+        tip.className = 'dot-tooltip';
+        tip.innerHTML = `<strong>${cap.key}</strong><code>top: ${cap.top}%, left: ${cap.left}%</code>`;
+        dot.appendChild(tip);
+
+        dot.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectedIndex = (selectedIndex === i) ? null : i;
+          renderDots();
+          renderList();
+          updateCoordDisplay(null, null, selectedIndex);
+        });
+
+        container.appendChild(dot);
+      });
+    }
+
+    // ── RENDER LIST ───────────────────────────────────────────────────────────
+    function renderList() {
+      const list = document.getElementById('capital-list');
+      list.innerHTML = '';
+      capitals.forEach((cap, i) => {
+        const changed = cap.top !== originalCoords[i].top || cap.left !== originalCoords[i].left;
+        const item = document.createElement('div');
+        item.className = 'capital-item' + (selectedIndex === i ? ' active' : '');
+        item.innerHTML = `
+        <span class="name">${cap.key}</span>
+        <span class="pos ${changed ? 'edited' : ''}">top:${cap.top} left:${cap.left}</span>
+      `;
+        item.addEventListener('click', () => {
+          selectedIndex = (selectedIndex === i) ? null : i;
+          renderDots();
+          renderList();
+          updateCoordDisplay(null, null, selectedIndex);
+          // scroll dot into view hint
+          if (selectedIndex !== null) {
+            coordsHint.textContent = `Selecionado: ${capitals[selectedIndex].key}. Clique no mapa para mover.`;
+          }
+        });
+        list.appendChild(item);
+      });
+    }
+
+    // ── UPDATE COORD DISPLAY ─────────────────────────────────────────────────
+    function updateCoordDisplay(top, left, selIdx) {
+      clickInfoSpan.style.display = 'none';
+      coordsDisplay.style.display = 'block';
+
+      if (top !== null) {
+        lastClickTop = top;
+        lastClickLeft = left;
+        coordsDisplay.textContent = `top: ${top}%, left: ${left}%`;
+        if (selIdx !== null) {
+          coordsHint.textContent = `↳ Movendo "${capitals[selIdx].key}" para esta posição`;
+        } else {
+          coordsHint.textContent = 'Selecione uma capital na lista para mover para este ponto';
+        }
+      } else if (selIdx !== null) {
+        coordsDisplay.textContent = `top: ${capitals[selIdx].top}%, left: ${capitals[selIdx].left}%`;
+        coordsHint.textContent = `Selecionado: ${capitals[selIdx].key}. Clique no mapa para mover.`;
+      }
+
+      copyBtn.style.display = 'inline-block';
+    }
+
+    function copyCoords() {
+      const txt = coordsDisplay.textContent;
+      navigator.clipboard.writeText(txt).then(() => {
+        copyBtn.textContent = '✓ Copiado!';
+        setTimeout(() => copyBtn.textContent = 'Copiar', 1500);
+      });
+    }
+
+    // ── MAP CLICK ─────────────────────────────────────────────────────────────
+    container.addEventListener('click', (e) => {
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const topPct = Math.round((y / rect.height) * 100 * 10) / 10;
+      const leftPct = Math.round((x / rect.width) * 100 * 10) / 10;
+
+      // place or move red click marker
+      if (clickMarkerEl) clickMarkerEl.remove();
+      clickMarkerEl = document.createElement('div');
+      clickMarkerEl.className = 'click-marker';
+      clickMarkerEl.style.top = topPct + '%';
+      clickMarkerEl.style.left = leftPct + '%';
+      container.appendChild(clickMarkerEl);
+
+      // if a capital is selected, move it
+      if (selectedIndex !== null) {
+        capitals[selectedIndex].top = topPct;
+        capitals[selectedIndex].left = leftPct;
+        renderDots();
+        renderList();
+        renderRuby();
+      }
+
+      updateCoordDisplay(topPct, leftPct, selectedIndex);
+    });
+
+    // ── RUBY OUTPUT ───────────────────────────────────────────────────────────
+    function renderRuby() {
+      const out = document.getElementById('ruby-output');
+      let lines = ['CAPITAL_COORDINATES = {'];
+      capitals.forEach((cap, i) => {
+        const changed = cap.top !== originalCoords[i].top || cap.left !== originalCoords[i].left;
+        const val = `  "${cap.key}"`.padEnd(30) + ` => { top: ${cap.top}, left: ${cap.left} },`;
+        if (changed) {
+          lines.push(`<span class="changed">${val}</span>`);
+        } else {
+          lines.push(val);
+        }
+      });
+      lines.push('}.freeze');
+      out.innerHTML = lines.join('\n');
+    }
+
+    function copyRuby() {
+      const text = document.getElementById('ruby-output').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-ruby-btn');
+        btn.textContent = '✓ Copiado!';
+        setTimeout(() => btn.textContent = '📋 Copiar código Ruby', 1500);
+      });
+    }
+
+    // ── INIT ──────────────────────────────────────────────────────────────────
+    renderDots();
+    renderList();
+    renderRuby();
+  </script>
+</body>
+
+</html>

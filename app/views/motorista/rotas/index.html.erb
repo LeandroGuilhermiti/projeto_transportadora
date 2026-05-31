@@ -1,0 +1,167 @@
+<div class="rotas-container">
+  <div class="rotas-header">
+    <div>
+      <h2>🚚 Minhas Viagens e Rotas</h2>
+      <p class="subtitle">Gerencie suas entregas ativas e registre o progresso em tempo real.</p>
+    </div>
+    <div class="header-actions">
+      <%= button_to motorista_rotas_avancar_path, method: :post, class: "btn-avancar-sim", form_class: "inline-form" do %>
+        <span>⏩ Avançar Todas as Minhas Viagens</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="rotas-grid">
+    <!-- Coluna Esquerda: Mapa das minhas entregas -->
+    <div class="map-card-wrapper">
+      <div class="card-header-styled">
+        <h3>📍 Localização de Minhas Cargas em Trânsito</h3>
+        <span class="pulse-indicator">● Conexão Ativa</span>
+      </div>
+      
+      <div class="map-container-relative">
+        <img src="/mapa-brasil.svg" alt="Mapa do Brasil" class="brazil-map-image">
+        
+        <!-- Renderização dos Caminhões Dinâmicos do Motorista -->
+        <% @packages.each do |package| %>
+          <% coords = package.map_coordinates %>
+          <% 
+            status_class = case package.status
+                           when 'Pendente' then 'truck-pendente'
+                           when 'Processando' then 'truck-processando'
+                           when 'em_transito' then 'truck-transito'
+                           when 'em rota' then 'truck-rota'
+                           when 'Entregue' then 'truck-entregue'
+                           else 'truck-default'
+                           end
+          %>
+          <div class="truck-pin <%= status_class %>" style="top: <%= coords[:top] %>%; left: <%= coords[:left] %>%;">
+            <span class="truck-icon">🚚</span>
+            <div class="truck-tooltip">
+              <div class="tooltip-header">
+                <strong><%= package.codigo_rastreio %></strong>
+                <span class="tooltip-status-pill <%= package.status %>"><%= package.status&.titleize %></span>
+              </div>
+              <div class="tooltip-body">
+                <p><strong>Destinatário:</strong> <%= package.destinatario %></p>
+                <p><strong>Destino:</strong> <%= package.regiao %></p>
+                <p><strong>Peso:</strong> <%= package.peso %> kg</p>
+                <p><strong>Último Evento:</strong> <%= package.tracking_events.order(created_at: :desc).first&.descricao || "Sem eventos" %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Coluna Direita: Ocorrências / Alertas e Atalhos -->
+    <div class="control-panel-wrapper">
+      <div class="panel-card alerts-card" style="height: 100%;">
+        <h3>🚨 Minhas Incidências de Trânsito</h3>
+        <div class="alerts-list">
+          <% if @alertas.any? %>
+            <% @alertas.each do |alerta| %>
+              <%
+                alert_type = case alerta.descricao
+                             when /Atraso/ then 'danger'
+                             when /Mecânico/ then 'warning'
+                             when /Mudança/ then 'info'
+                             when /Fiscalização/ then 'fiscal'
+                             when /Climática/ then 'weather'
+                             when /Tentada/ then 'attempt'
+                             else 'default'
+                             end
+              %>
+              <div class="incident-alert-item <%= alert_type %>">
+                <div class="alert-indicator"></div>
+                <div class="alert-content">
+                  <div class="alert-meta">
+                    <strong><%= alerta.package.codigo_rastreio %></strong>
+                    <span><%= alerta.created_at.strftime("%H:%M") %></span>
+                  </div>
+                  <p class="alert-desc"><%= alerta.descricao %></p>
+                  <small class="alert-loc">📍 <%= alerta.localizacao || alerta.package.regiao %></small>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="empty-alerts">
+              <span class="shield-icon">🛡️</span>
+              <p>Excelente! Sem ocorrências ou atrasos reportados para suas rotas hoje.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de Rotas do Motorista -->
+  <div class="rotas-table-card">
+    <div class="card-header-styled">
+      <h3>📋 Manifesto de Viagens</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="styled-rotas-table">
+        <thead>
+          <tr>
+            <th>Código de Rastreio</th>
+            <th>Destinatário</th>
+            <th>Destino</th>
+            <th>Peso</th>
+            <th>Status da Viagem</th>
+            <th>Última Atualização</th>
+            <th>Ações da Viagem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @packages.any? %>
+            <% @packages.each do |package| %>
+              <tr>
+                <td><strong><%= package.codigo_rastreio %></strong></td>
+                <td><%= package.destinatario %></td>
+                <td><%= package.regiao %></td>
+                <td><%= package.peso %> kg</td>
+                <td>
+                  <% 
+                    status_badge = case package.status
+                                   when 'Pendente' then 'badge-pendente'
+                                   when 'Processando' then 'badge-processando'
+                                   when 'em_transito' then 'badge-transito'
+                                   when 'em rota' then 'badge-rota'
+                                   when 'Entregue' then 'badge-entregue'
+                                   else 'badge-default'
+                                   end
+                  %>
+                  <span class="status-badge-styled <%= status_badge %>">
+                    <span class="badge-dot"></span>
+                    <%= package.status&.titleize %>
+                  </span>
+                </td>
+                <td><%= package.updated_at.strftime("%d/%m/%Y às %H:%M") %></td>
+                <td>
+                  <div style="display: flex; gap: 8px;">
+                    <% unless package.status == 'Entregue' %>
+                      <%= button_to motorista_rotas_avancar_path(package_id: package.id), method: :post, class: 'btn-action-sm-styled font-weight-bold', style: 'background: var(--accent-green, #10b981); color: #fff; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer;' do %>
+                        ⏩ Avançar Etapa
+                      <% end %>
+                    <% else %>
+                      <span style="color: #64748b; font-size: 0.85rem; font-weight: 500;">✓ Concluída</span>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="7" class="empty-table-cell">
+                <div class="empty-table-state">
+                  <p>Você não possui viagens ativas no momento. Aguarde a atribuição de rotas pelo Administrador.</p>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

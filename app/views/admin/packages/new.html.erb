@@ -49,6 +49,12 @@
         <%= form.text_field :endereco, class: "ne-input", placeholder: "Rua, Número, Complemento, Bairro" %>
       </div>
 
+      <!-- Destino (Região/Cidade) -->
+      <div class="ne-field-full">
+        <label class="ne-label">Cidade / Capital de Destino</label>
+        <%= form.select :regiao, Package::CAPITAL_COORDINATES.keys.sort, { prompt: "Selecione a cidade de destino" }, class: "ne-input ne-select", required: true %>
+      </div>
+
       <!-- Peso e Dimensões -->
       <div class="ne-row-2">
         <div>

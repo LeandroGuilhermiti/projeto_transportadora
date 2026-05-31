@@ -36,13 +36,33 @@
     </div>
     
     <div class="animated-map-container">
-      <!-- Mapa do Brasil em SVG (Formato simplificado e leve) -->
-      <%= image_tag 'mapa-brasil.svg', class: 'brazil-map-svg', alt: 'Mapa Logístico do Brasil' %>
+      <div style="position: relative; width: 100%; max-width: 450px; aspect-ratio: 1000 / 912; display: flex; justify-content: center; align-items: center;">
+        <!-- Mapa do Brasil em SVG -->
+        <%= image_tag 'mapa-brasil.svg', class: 'brazil-map-svg', style: 'width: 100%; height: 100%; max-width: 450px; filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.5)); margin: 0; display: block;', alt: 'Mapa Logístico do Brasil' %>
 
-      <!-- veiculos, posicionados via css -->
-      <div class="blinking-truck truck-1"></div>
-      <div class="blinking-truck truck-2"></div>
-      <div class="blinking-truck truck-3"></div>
+        <!-- veículos ativos posicionados dinamicamente via Ruby -->
+        <% if @packages_em_rota.any? %>
+          <% @packages_em_rota.each do |package| %>
+            <% coords = package.map_coordinates %>
+            <%
+              color = case package.status
+                      when 'Pendente' then '#64748b'
+                      when 'Processando' then '#3b82f6'
+                      when 'em_transito' then '#10b981'
+                      when 'em rota' then '#8b5cf6'
+                      else '#f5a623'
+                      end
+            %>
+            <div class="blinking-truck-dynamic" style="position: absolute; width: 12px; height: 12px; border-radius: 50%; background: <%= color %>; box-shadow: 0 0 10px <%= color %>, 0 0 20px <%= color %>; top: <%= coords[:top] %>%; left: <%= coords[:left] %>%; transform: translate(-50%, -50%); cursor: pointer;" title="<%= package.codigo_rastreio %> - <%= package.regiao %> (<%= package.status&.titleize %>)">
+            </div>
+          <% end %>
+        <% else %>
+          <!-- Fallback mock se não houver pacotes ativos -->
+          <div class="blinking-truck truck-1"></div>
+          <div class="blinking-truck truck-2"></div>
+          <div class="blinking-truck truck-3"></div>
+        <% end %>
+      </div>
     </div>
   </div>
 
@@ -50,27 +70,56 @@
   <div class="alerts-sidebar">
     <h3 style="margin: 0 0 5px; color: var(--accent-blue);">🚨 Alertas de Incidência</h3>
     
-    <div class="alert-card">
-      <p class="time"><%= Time.now.strftime("%H:%M") %></p>
-      <h4>Atraso Crítico</h4>
-      <h3>Caminhão XYZ-9876</h3>
-      <p class="desc">Parado há mais de 45 min em zona de risco. Sem comunicação ativa.</p>
-      <button class="btn-action-sm">Acionar Suporte</button>
-    </div>
+    <% if @alertas.any? %>
+      <% @alertas.each do |alerta| %>
+        <%
+          border_color = case alerta.descricao
+                         when /Atraso/ then '#ef4444'
+                         when /Mecânico/ then '#f5a623'
+                         when /Mudança/ then '#3b82f6'
+                         when /Fiscalização/ then '#f97316'
+                         when /Climática/ then '#64748b'
+                         when /Tentada/ then '#a855f7'
+                         else '#ef4444'
+                         end
+          
+          titulo = alerta.descricao.split(':').first || "Incidência"
+          descricao_limpa = alerta.descricao.split(':').last || alerta.descricao
+        %>
+        <div class="alert-card" style="border-left-color: <%= border_color %>;">
+          <p class="time"><%= alerta.created_at.strftime("%H:%M") %></p>
+          <h4 style="color: <%= border_color %>;"><%= titulo %></h4>
+          <h3><%= alerta.package.codigo_rastreio %></h3>
+          <p class="desc"><%= descricao_limpa %> em <strong><%= alerta.localizacao || alerta.package.regiao %></strong>.</p>
+          <% if titulo.include?("Atraso") || titulo.include?("Mecânico") %>
+            <button class="btn-action-sm">Acionar Suporte</button>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- Fallback mock original se não houver alertas dinâmicos -->
+      <div class="alert-card">
+        <p class="time"><%= Time.now.strftime("%H:%M") %></p>
+        <h4>Atraso Crítico</h4>
+        <h3>Caminhão XYZ-9876</h3>
+        <p class="desc">Parado há mais de 45 min em zona de risco. Sem comunicação ativa.</p>
+        <button class="btn-action-sm">Acionar Suporte</button>
+      </div>
 
-    <div class="alert-card warning">
-      <p class="time"><%= (Time.now - 1.hour).strftime("%H:%M") %></p>
-      <h4>Problema Mecânico</h4>
-      <h3>Van JKL-4412</h3>
-      <p class="desc">Alerta de sensor de pressão ativado. Desvio para oficina.</p>
-    </div>
+      <div class="alert-card warning">
+        <p class="time"><%= (Time.now - 1.hour).strftime("%H:%M") %></p>
+        <h4>Problema Mecânico</h4>
+        <h3>Van JKL-4412</h3>
+        <p class="desc">Alerta de sensor de pressão ativado. Desvio para oficina.</p>
+      </div>
 
-    <div class="alert-card" style="border-left-color: #3b82f6;">
-      <p class="time"><%= (Time.now - 2.hours).strftime("%H:%M") %></p>
-      <h4 style="color: #3b82f6;">Mudança de Rota</h4>
-      <h3>Caminhão QWE-1234</h3>
-      <p class="desc">Roteiro recalibrado automaticamente devido a acidente na via principal.</p>
-    </div>
+      <div class="alert-card" style="border-left-color: #3b82f6;">
+        <p class="time"><%= (Time.now - 2.hours).strftime("%H:%M") %></p>
+        <h4 style="color: #3b82f6;">Mudança de Rota</h4>
+        <h3>Caminhão QWE-1234</h3>
+        <p class="desc">Roteiro recalibrado automaticamente devido a acidente na via principal.</p>
+      </div>
+    <% end %>
   </div>
 
   <!-- Bottom Table -->

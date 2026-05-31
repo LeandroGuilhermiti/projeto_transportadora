@@ -30,78 +30,21 @@
             <div class="ne-input-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
               <%= select_tag :package_id, 
-                  options_from_collection_for_select(@pacotes_pendentes, :id, ->(p) { "#{p.codigo_rastreio} - #{p.destinatario}" }), 
+                  options_for_select(@pacotes_pendentes.map { |p| ["#{p.codigo_rastreio} - #{p.destinatario}", p.id, { 'data-regiao' => p.regiao }] }), 
                   prompt: "Selecione o pacote...", 
-                  class: "ne-input ne-input-with-icon ne-select ne-field-full" 
+                  class: "ne-input ne-input-with-icon ne-select ne-field-full",
+                  id: "entrega_package_id",
+                  required: true
               %>
             </div>
             <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Selecione um pacote existente que ainda não foi atribuído a um motorista.</p>
           </div>
-        </div>
 
-        <!-- Destino -->
-        <div class="ne-card">
-          <div class="ne-card-header">
-            <div class="ne-card-icon" style="background: #ffedd5;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-            </div>
-            <h3 class="ne-card-title">Destino</h3>
-          </div>
-
-          <div class="ne-row-2">
-            <div>
-              <label class="ne-label">Região de Entrega</label>
-              <%= select_tag "package[regiao]", options_for_select([
-                "Zona Sul - São Paulo", 
-                "Zona Oeste - São Paulo", 
-                "Zona Leste - São Paulo", 
-                "Centro - São Paulo",
-                "Zona Norte - São Paulo"
-              ]), class: "ne-input ne-select ne-field-full" %>
-            </div>
-            <div>
-              <label class="ne-label">Cidade</label>
-              <select id="cidade-select" name="package[cidade]" class="ne-input ne-select ne-field-full">
-                <option value="">Carregando cidades...</option>
-              </select>
-            </div>
+          <div class="ne-field-full" style="margin-top: 15px; display: none;" id="pacote-info-container">
+            <label class="ne-label">Destino do Pacote Selecionado</label>
+            <p id="pacote-regiao-text" style="font-weight: 500; color: #1e293b; padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">Nenhuma região selecionada</p>
           </div>
         </div>
-
-<script>
-  document.addEventListener("turbo:load", carregarCidadesSP);
-  document.addEventListener("DOMContentLoaded", carregarCidadesSP);
-
-  function carregarCidadesSP() {
-    const select = document.getElementById("cidade-select");
-    if (!select) return;
-    
-    // Evita carregar duas vezes se já tiver opções
-    if (select.options.length > 1) return;
-
-    fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados/SP/municipios")
-      .then(response => response.json())
-      .then(cidades => {
-        select.innerHTML = '<option value="">Selecione a cidade</option>';
-        cidades.forEach(cidade => {
-          const option = document.createElement("option");
-          option.value = cidade.nome;
-          option.textContent = cidade.nome;
-          
-          // Pré-selecionar São Paulo por padrão
-          if (cidade.nome === "São Paulo") {
-            option.selected = true;
-          }
-          
-          select.appendChild(option);
-        });
-      })
-      .catch(error => {
-        console.error("Erro ao carregar cidades:", error);
-        select.innerHTML = '<option value="">Erro ao carregar</option>';
-      });
-  }
-</script>
 
         <!-- Logística -->
         <div class="ne-card">
@@ -116,10 +59,14 @@
             <div>
               <label class="ne-label">Motorista Responsável</label>
               <%= select_tag "package[driver_id]", 
-                  options_from_collection_for_select(@motoristas, :id, ->(m) { "#{m.nome} (#{m.cargo})" }), 
+                  options_for_select(@motoristas.map { |m| ["#{m.nome} (#{m.cargo})", m.id, { 'data-regiao' => m.regiao_atuacao }] }), 
                   prompt: "Selecionar Motorista", 
-                  class: "ne-input ne-select ne-field-full" 
+                  class: "ne-input ne-select ne-field-full",
+                  id: "entrega_driver_id",
+                  disabled: true,
+                  required: true
               %>
+              <p id="driver-help-text" style="font-size: 0.75rem; color: #ef4444; margin-top: 5px;">Selecione um pacote primeiro para filtrar motoristas da região.</p>
             </div>
             <div>
               <label class="ne-label">Status Inicial</label>
@@ -130,6 +77,76 @@
             </div>
           </div>
         </div>
+
+        <script>
+          document.addEventListener('turbo:load', setupDynamicDriverFiltering);
+          document.addEventListener('DOMContentLoaded', setupDynamicDriverFiltering);
+
+          function setupDynamicDriverFiltering() {
+            const packageSelect = document.getElementById('entrega_package_id');
+            const driverSelect = document.getElementById('entrega_driver_id');
+            const pacoteInfoContainer = document.getElementById('pacote-info-container');
+            const pacoteRegiaoText = document.getElementById('pacote-regiao-text');
+            const driverHelpText = document.getElementById('driver-help-text');
+
+            if (!packageSelect || !driverSelect) return;
+
+            if (!driverSelect.dataset.originalOptionsStored) {
+              window.originalDriverOptions = Array.from(driverSelect.options).map(opt => ({
+                value: opt.value,
+                text: opt.text,
+                regiao: opt.getAttribute('data-regiao') || '',
+                isPrompt: opt.value === ""
+              }));
+              driverSelect.dataset.originalOptionsStored = "true";
+            }
+
+            packageSelect.addEventListener('change', function() {
+              const selectedOption = this.options[this.selectedIndex];
+              const packageRegiao = selectedOption ? selectedOption.getAttribute('data-regiao') : '';
+
+              if (packageRegiao && packageRegiao !== "") {
+                pacoteInfoContainer.style.display = 'block';
+                pacoteRegiaoText.textContent = packageRegiao;
+                
+                driverSelect.disabled = false;
+                driverSelect.innerHTML = '';
+                
+                let driversFound = 0;
+                window.originalDriverOptions.forEach(opt => {
+                  if (opt.isPrompt || opt.regiao === packageRegiao) {
+                    const newOpt = document.createElement('option');
+                    newOpt.value = opt.value;
+                    newOpt.text = opt.text;
+                    newOpt.setAttribute('data-regiao', opt.regiao);
+                    driverSelect.appendChild(newOpt);
+                    if (!opt.isPrompt) driversFound++;
+                  }
+                });
+
+                if (driversFound > 0) {
+                  driverHelpText.textContent = `${driversFound} motorista(s) disponível(is) para ${packageRegiao}.`;
+                  driverHelpText.style.color = '#10b981';
+                } else {
+                  driverHelpText.textContent = `Nenhum motorista disponível em ${packageRegiao}.`;
+                  driverHelpText.style.color = '#ef4444';
+                  driverSelect.disabled = true;
+                }
+              } else {
+                pacoteInfoContainer.style.display = 'none';
+                driverSelect.disabled = true;
+                driverSelect.innerHTML = '<option value="">Selecionar Motorista</option>';
+                driverHelpText.textContent = "Selecione um pacote primeiro para filtrar motoristas da região.";
+                driverHelpText.style.color = '#ef4444';
+              }
+            });
+            
+            // Disparar o change se já tiver algo selecionado (ex: volta de erro)
+            if (packageSelect.value !== "") {
+              packageSelect.dispatchEvent(new Event('change'));
+            }
+          }
+        </script>
 
       </div>
 

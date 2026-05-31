@@ -1,0 +1,338 @@
+<div class="rotas-container">
+  <div class="rotas-header">
+    <div>
+      <h2>🗺️ Acompanhar Rotas (Simulador)</h2>
+      <p class="subtitle">Simule o deslocamento de cargas e monitore incidentes pelo território nacional.</p>
+    </div>
+    <div class="header-actions">
+      <%= button_to admin_rotas_avancar_path, method: :post, class: "btn-avancar-sim", form_class: "inline-form" do %>
+        <span>⏩ Avançar Simulação</span>
+      <% end %>
+      <%= button_to admin_rotas_limpar_path, method: :post, class: "btn-limpar-sim", form_class: "inline-form", data: { confirm: "Tem certeza que deseja resetar todas as simulações?" } do %>
+        <span>🗑️ Limpar Tudo</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="rotas-grid">
+    <!-- Coluna Esquerda: Mapa Leaflet -->
+    <div class="map-card-wrapper">
+      <div class="card-header-styled">
+        <h3>📍 Monitoramento Logístico em Tempo Real</h3>
+        <span class="pulse-indicator">● Transmitindo</span>
+      </div>
+
+      <div class="map-container-relative" style="min-height: 480px; display: flex; flex-direction: column;">
+        <div id="map" style="flex: 1; min-height: 420px; border-radius: 12px; z-index: 1;"></div>
+        <div id="sim-status" style="padding: 10px; text-align: center; font-weight: bold; color: var(--color-blue); background: var(--bg-card); border-radius: 0 0 12px 12px; border: 1px solid var(--border-color); border-top: none; font-size: 0.9rem;">
+          Selecione uma entrega para iniciar a simulação...
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna Direita: Painel de Controle -->
+    <div class="control-panel-wrapper">
+      <!-- Formulário para Iniciar Rota -->
+      <div class="panel-card form-card">
+        <h3>🚀 Iniciar Rota Simulada</h3>
+        <%= form_with url: admin_rotas_iniciar_path, method: :post, local: true, class: "styled-form", html: { id: "sim-form" } do |f| %>
+          <div class="form-group">
+            <label for="sim-package-id">Selecionar Entrega (Pacote)</label>
+            <%= f.select :package_id,
+                options_from_collection_for_select(@entregas_disponiveis, :id, ->(p) { "#{p.codigo_rastreio} — #{p.destinatario} (#{p.regiao})" }),
+                { prompt: "Selecione um pacote pendente..." },
+                { class: "form-control-styled", required: true, id: "sim-package-id" } %>
+          </div>
+
+          <div class="form-group" style="display: flex; gap: 8px; align-items: center; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+            <span>Velocidade:</span>
+            <select id="sim-speed" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">
+              <option value="400">Rápida (Apresentação)</option>
+              <option value="1500">Normal (Realista)</option>
+            </select>
+          </div>
+
+          <%= f.submit "Iniciar Simulação", class: "btn-submit-styled", id: "btn-start-sim" %>
+        <% end %>
+      </div>
+
+      <!-- Alertas de Incidência -->
+      <div class="panel-card alerts-card">
+        <h3>🚨 Alertas de Incidência Recentes</h3>
+        <div class="alerts-list">
+          <% if @alertas.any? %>
+            <% @alertas.each do |alerta| %>
+              <%
+                alert_type = case alerta.descricao
+                             when /Atraso/ then 'danger'
+                             when /Mecânico/ then 'warning'
+                             when /Mudança/ then 'info'
+                             when /Fiscalização/ then 'fiscal'
+                             when /Climática/ then 'weather'
+                             when /Tentada/ then 'attempt'
+                             else 'default'
+                             end
+              %>
+              <div class="incident-alert-item <%= alert_type %>">
+                <div class="alert-indicator"></div>
+                <div class="alert-content">
+                  <div class="alert-meta">
+                    <strong><%= alerta.package.codigo_rastreio %></strong>
+                    <span><%= alerta.created_at.strftime("%H:%M") %></span>
+                  </div>
+                  <p class="alert-desc"><%= alerta.descricao %></p>
+                  <small class="alert-loc">📍 <%= alerta.localizacao || alerta.package.regiao %></small>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="empty-alerts">
+              <span class="shield-icon">🛡️</span>
+              <p>Nenhuma ocorrência ou incidente registrado no momento.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de Rotas Simuladas Ativas -->
+  <div class="rotas-table-card">
+    <div class="card-header-styled">
+      <h3>📋 Viagens Ativas no Simulador</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="styled-rotas-table">
+        <thead>
+          <tr>
+            <th>Código de Rastreio</th>
+            <th>Destino</th>
+            <th>Motorista</th>
+            <th>Peso</th>
+            <th>Status Atual</th>
+            <th>Última Atualização</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @packages.any? %>
+            <% @packages.each do |package| %>
+              <tr>
+                <td><strong><%= package.codigo_rastreio %></strong></td>
+                <td><%= package.regiao %></td>
+                <td><%= package.driver&.nome || "Não atribuído" %></td>
+                <td><%= package.peso %> kg</td>
+                <td>
+                  <%
+                    status_badge = case package.status
+                                   when 'Pendente' then 'badge-pendente'
+                                   when 'Processando' then 'badge-processando'
+                                   when 'em_transito' then 'badge-transito'
+                                   when 'em rota' then 'badge-rota'
+                                   when 'Entregue' then 'badge-entregue'
+                                   else 'badge-default'
+                                   end
+                  %>
+                  <span class="status-badge-styled <%= status_badge %>">
+                    <span class="badge-dot"></span>
+                    <%= package.status&.titleize %>
+                  </span>
+                </td>
+                <td><%= package.updated_at.strftime("%d/%m/%Y às %H:%M") %></td>
+                <td>
+                  <%= link_to 'Detalhes', package_path(package), class: 'btn-action-sm-styled' %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="7" class="empty-table-cell">
+                <div class="empty-table-state">
+                  <p>Nenhuma rota em andamento. Inicie uma simulação acima para começar!</p>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet CSS e JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // --- Inicializa o Mapa ---
+  const map = L.map('map').setView([-15.7801, -47.9292], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const originCoords = [-23.5615, -46.656]; // CD São Paulo
+
+  // Dados dos pacotes disponíveis passados pelo servidor
+  const availablePackages = <%= raw @entregas_disponiveis.each_with_object({}) { |p, h| h[p.id] = { address: [p.endereco, p.regiao].join(', '), id: p.id } }.to_json %>;
+
+  let routeCoordinates = [];
+  let truckMarker    = null;
+  let simInterval    = null;
+  let currentStep    = 0;
+  let triggers       = {};
+  let simPackageId   = null;
+  let currentAddress = null;
+
+  const simForm      = document.getElementById('sim-form');
+  const packageSelect = document.getElementById('sim-package-id');
+  const startBtn     = document.getElementById('btn-start-sim');
+  const statusDiv    = document.getElementById('sim-status');
+  const speedSelect  = document.getElementById('sim-speed');
+
+  // --- Intercepta o Submit do formulário ---
+  if (simForm) {
+    simForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const pkgId = packageSelect.value;
+      if (!pkgId || !availablePackages[pkgId]) {
+        statusDiv.innerHTML = "<span style='color:orange;'>Selecione um pacote válido.</span>";
+        return;
+      }
+
+      simPackageId   = pkgId;
+      currentAddress = availablePackages[pkgId].address;
+
+      startBtn.disabled     = true;
+      packageSelect.disabled = true;
+      statusDiv.innerHTML    = "🔍 Geocodificando endereço de destino...";
+
+      const geocodeUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(currentAddress);
+      fetch(geocodeUrl)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          var destCoords = [-23.5855, -46.6754]; // Fallback SP
+          if (data && data.length > 0) destCoords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+          calculateRoute(originCoords, destCoords);
+        })
+        .catch(function() { calculateRoute(originCoords, [-23.5855, -46.6754]); });
+    });
+  }
+
+  // --- Calcula e Desenha a Rota via OSRM ---
+  function calculateRoute(origin, dest) {
+    statusDiv.innerHTML = "🗺️ Traçando rota terrestre mais curta (OSRM)...";
+
+    // Limpa camadas anteriores (exceto tile layer)
+    map.eachLayer(function(layer) {
+      if (layer instanceof L.Marker || layer instanceof L.Polyline) map.removeLayer(layer);
+    });
+
+    L.marker(origin).addTo(map).bindPopup("<b>CD Origem — São Paulo</b>").openPopup();
+    L.marker(dest).addTo(map).bindPopup("<b>Destino Final</b>");
+    map.fitBounds(L.latLngBounds([origin, dest]), { padding: [40, 40] });
+
+    var osrmUrl = 'https://router.project-osrm.org/route/v1/driving/' +
+      origin[1] + ',' + origin[0] + ';' + dest[1] + ',' + dest[0] +
+      '?overview=full&geometries=geojson';
+
+    fetch(osrmUrl)
+      .then(function(res) { return res.json(); })
+      .then(function(routeData) {
+        if (routeData.routes && routeData.routes.length > 0) {
+          var route = routeData.routes[0];
+          routeCoordinates = route.geometry.coordinates.map(function(coord) { return [coord[1], coord[0]]; });
+
+          L.polyline(routeCoordinates, { color: '#1461ac', weight: 6, opacity: 0.8 }).addTo(map);
+
+          var truckIcon = L.divIcon({
+            className: 'custom-truck-icon',
+            html: '<div style="font-size:24px;line-height:28px;">🚚</div>',
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+          });
+          truckMarker = L.marker(origin, { icon: truckIcon }).addTo(map);
+
+          startAnimation();
+        } else {
+          statusDiv.innerHTML = "<span style='color:red;'>Erro ao calcular rota.</span>";
+          startBtn.disabled     = false;
+          packageSelect.disabled = false;
+        }
+      })
+      .catch(function() {
+        statusDiv.innerHTML = "<span style='color:red;'>OSRM indisponível. Tente novamente.</span>";
+        startBtn.disabled     = false;
+        packageSelect.disabled = false;
+      });
+  }
+
+  // --- Inicia a Animação ---
+  function startAnimation() {
+    statusDiv.innerHTML = "🚀 Simulação iniciada! Veículo em rota...";
+    currentStep = 0;
+    triggers    = { coletado: false, em_transito: false, proximo: false, entregue: false };
+
+    fetch('/packages/' + simPackageId + '/tracking_events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      body: JSON.stringify({ tracking_event: { status: 'Processando', descricao: 'Carga saindo do CD. Rota iniciada.', localizacao: 'Centro de Distribuição' } })
+    });
+
+    if (simInterval) clearInterval(simInterval);
+    var speed = parseInt(speedSelect ? speedSelect.value : '400') || 400;
+    simInterval = setInterval(animateStep, speed);
+  }
+
+  // --- Passo da Animação ---
+  function animateStep() {
+    if (currentStep >= routeCoordinates.length) {
+      clearInterval(simInterval);
+      statusDiv.innerHTML = "✅ Entrega finalizada! Atualizando painel em 2 segundos...";
+      setTimeout(function() { window.location.reload(); }, 2000);
+      return;
+    }
+
+    var coords = routeCoordinates[currentStep];
+    truckMarker.setLatLng(coords);
+    map.panTo(coords);
+
+    var progress = currentStep / (routeCoordinates.length - 1);
+
+    if (progress === 0 && !triggers.coletado) {
+      triggers.coletado = true;
+      sendEvent('Pendente', 'Carga coletada no Centro de Distribuição.', 'Centro de Distribuição');
+    } else if (progress >= 0.3 && progress < 0.7 && !triggers.em_transito) {
+      triggers.em_transito = true;
+      sendEvent('em_transito', 'Veículo em deslocamento pela rodovia principal.', 'Rodovia');
+    } else if (progress >= 0.75 && progress < 0.95 && !triggers.proximo) {
+      triggers.proximo = true;
+      sendEvent('em rota', 'Entregador aproximando-se do destino final.', 'Vias locais');
+    } else if (progress >= 0.98 && !triggers.entregue) {
+      triggers.entregue = true;
+      sendEvent('Entregue', 'Entrega realizada com sucesso ao destinatário.', currentAddress);
+    }
+
+    var skip = Math.max(1, Math.floor(routeCoordinates.length / 40));
+    currentStep += skip;
+    if (currentStep > routeCoordinates.length - 1 && currentStep - skip < routeCoordinates.length - 1) {
+      currentStep = routeCoordinates.length - 1;
+    }
+  }
+
+  // --- Envia Evento para o Servidor ---
+  function sendEvent(status, descricao, localizacao) {
+    statusDiv.innerHTML = 'Registrando evento: <strong>' + status + '</strong>...';
+    fetch('/packages/' + simPackageId + '/tracking_events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      body: JSON.stringify({ tracking_event: { status: status, descricao: descricao, localizacao: localizacao } })
+    }).then(function() {
+      statusDiv.innerHTML = '🚛 Avançando frota...';
+    });
+  }
+});
+</script>

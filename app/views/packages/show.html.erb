@@ -251,7 +251,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-  const address = <%= @package.endereco.to_json.html_safe %>;
+  const address = `<%= @package.endereco %>, <%= @package.regiao %>`;
   const packageId = <%= @package.id %>;
   
   // 1. Inicializa o mapa com foco provisório na Paulista (CD)

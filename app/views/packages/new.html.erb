@@ -79,8 +79,8 @@
 
           <div class="ne-row-2">
             <div>
-              <label class="ne-label">Região de Entrega</label>
-              <%= form.text_field :regiao, class: "ne-input", placeholder: "Ex: Zona Sul - São Paulo" %>
+              <label class="ne-label">Cidade / Capital de Destino</label>
+              <%= form.select :regiao, Package::CAPITAL_COORDINATES.keys.sort, { prompt: "Selecione a cidade" }, class: "ne-input ne-select", required: true %>
             </div>
             <div>
               <label class="ne-label">Status Inicial</label>

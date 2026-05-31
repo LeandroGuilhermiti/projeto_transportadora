@@ -236,3 +236,23 @@
   font-size: 0.75rem;
   font-weight: 600;
 }
+
+/* --- Caminhões Dinâmicos do Dashboard --- */
+.blinking-truck-dynamic {
+  z-index: 8;
+  border: 1.5px solid #ffffff;
+  transition: all 0.2s ease-in-out;
+  animation: pulse-dynamic-glow 1.8s infinite ease-in-out;
+}
+
+.blinking-truck-dynamic:hover {
+  transform: translate(-50%, -50%) scale(1.4) !important;
+  z-index: 20;
+}
+
+@keyframes pulse-dynamic-glow {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.65; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+

@@ -48,6 +48,6 @@ class Admin::EntregasController < ApplicationController
   private
 
   def entrega_params
-    params.require(:package).permit(:driver_id, :regiao)
+    params.require(:package).permit(:driver_id)
   end
 end
