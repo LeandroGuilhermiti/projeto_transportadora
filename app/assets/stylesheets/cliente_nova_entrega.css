@@ -1,0 +1,450 @@
+/* ==============================
+   NOVA ENTREGA — CLIENTE
+   ============================== */
+
+/* Layout principal da tela de nova entrega */
+.nova-entrega-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 28px;
+  align-items: start;
+  max-width: 1100px;
+}
+
+/* ---- Page Header ---- */
+.nova-entrega-header {
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.nova-entrega-header::before {
+  content: '';
+  position: absolute;
+  top: -24px;
+  left: -24px;
+  width: 100px;
+  height: 100px;
+  background: rgba(254, 192, 128, 0.12);
+  border-radius: 50%;
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.nova-entrega-header h2 {
+  margin: 0 0 6px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+}
+
+.nova-entrega-header p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+/* ---- Form Cards ---- */
+.form-card {
+  background: var(--bg-card);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 51, 107, 0.04);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  transition: box-shadow 0.2s;
+}
+
+.form-card:last-child {
+  margin-bottom: 0;
+}
+
+.form-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 51, 107, 0.08);
+}
+
+.form-card-watermark {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 4rem;
+  opacity: 0.04;
+  pointer-events: none;
+  line-height: 1;
+  color: var(--primary);
+}
+
+.form-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.form-card-title .title-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  flex-shrink: 0;
+}
+
+.form-card-title .title-dot.secondary {
+  background: var(--secondary);
+}
+
+.form-card-title .title-dot.accent {
+  background: var(--accent-green);
+}
+
+/* ---- Form Grid ---- */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.form-grid .col-span-2 {
+  grid-column: span 2;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-color);
+  background: var(--surface-container-low);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--surface-container-lowest);
+  box-shadow: 0 0 0 3px rgba(0, 51, 107, 0.1);
+}
+
+.form-input[readonly],
+.form-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  border-color: transparent;
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* Dimensões inline */
+.dimensions-row {
+  display: flex;
+  gap: 10px;
+}
+
+.dimensions-row .form-input {
+  text-align: center;
+  font-weight: 700;
+}
+
+/* ---- Summary Card (Sticky) ---- */
+.summary-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(0, 51, 107, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  position: sticky;
+  top: 80px;
+}
+
+.dark-mode .summary-card {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(51, 65, 85, 0.8);
+}
+
+.summary-card h3 {
+  margin: 0 0 24px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.3px;
+}
+
+.summary-route {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.summary-route-endpoint p.label {
+  margin: 0 0 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+}
+
+.summary-route-endpoint p.value {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.summary-route-arrow {
+  font-size: 1.2rem;
+  color: var(--border-color);
+  margin-top: 12px;
+}
+
+.summary-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 16px 0;
+  opacity: 0.5;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.summary-line span:first-child {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.summary-line span:last-child {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.summary-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 4px;
+}
+
+.summary-total-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+}
+
+.summary-total-value {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--primary);
+  line-height: 1;
+}
+
+/* Aviso info */
+.summary-info-box {
+  background: rgba(254, 192, 128, 0.12);
+  border: 1px solid rgba(254, 192, 128, 0.3);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 20px 0;
+}
+
+.summary-info-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.summary-info-box p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--secondary);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Botão Confirmar */
+.btn-confirmar {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 12px 28px rgba(0, 51, 107, 0.25);
+  letter-spacing: 0.3px;
+}
+
+.btn-confirmar:hover {
+  transform: scale(1.02);
+  box-shadow: 0 16px 36px rgba(0, 51, 107, 0.35);
+}
+
+.btn-confirmar:active {
+  transform: scale(0.97);
+}
+
+.btn-confirmar.loading {
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.btn-confirmar.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 12px 28px rgba(16, 185, 129, 0.3);
+}
+
+.summary-guarantee {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+}
+
+/* Bloco "Precisa de Ajuda?" */
+.help-card {
+  margin-top: 18px;
+  background: var(--surface-container);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+  cursor: help;
+  transition: background 0.2s;
+}
+
+.help-card:hover {
+  background: var(--surface-container-low);
+}
+
+.help-card-bg-icon {
+  position: absolute;
+  right: -12px;
+  bottom: -12px;
+  font-size: 4rem;
+  opacity: 0.08;
+  transition: transform 0.3s;
+  pointer-events: none;
+}
+
+.help-card:hover .help-card-bg-icon {
+  transform: scale(1.1);
+}
+
+.help-card-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--bg-card);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-light);
+  flex-shrink: 0;
+}
+
+.help-card-text strong {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.help-card-text span {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ---- Efeito glows decorativos ---- */
+.nova-entrega-glow {
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.18;
+}
+
+.nova-entrega-glow.glow-1 {
+  top: 25%;
+  left: 25%;
+  width: 360px;
+  height: 360px;
+  background: rgba(0, 73, 149, 0.15);
+}
+
+.nova-entrega-glow.glow-2 {
+  bottom: 20%;
+  right: 20%;
+  width: 480px;
+  height: 480px;
+  background: rgba(130, 84, 31, 0.1);
+}
+
+/* ---- Responsividade ---- */
+@media (max-width: 900px) {
+  .nova-entrega-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    position: static;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid .col-span-2 {
+    grid-column: span 1;
+  }
+}

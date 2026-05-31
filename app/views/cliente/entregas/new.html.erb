@@ -1,0 +1,242 @@
+<!-- Glows decorativos -->
+<div class="nova-entrega-glow glow-1"></div>
+<div class="nova-entrega-glow glow-2"></div>
+
+<!-- Page Header -->
+<div class="nova-entrega-header">
+  <h2>Nova Entrega</h2>
+  <p>Configure os detalhes do seu envio para gerar a solicitação.</p>
+</div>
+
+<%= form_with model: @package, url: cliente_entregas_path, local: true do |f| %>
+  <div class="nova-entrega-grid">
+
+    <!-- Coluna Esquerda: Formulário -->
+    <div>
+
+      <!-- Card: Informações de Origem -->
+      <div class="form-card">
+        <span class="form-card-watermark">🏠</span>
+        <h3 class="form-card-title">
+          <span class="title-dot"></span>
+          Informações de Origem
+        </h3>
+        <div class="form-group">
+          <label class="form-label">Endereço de Coleta (Sua Base)</label>
+          <input type="text" class="form-input" value="Informado pela transportadora no momento do cadastro" readonly>
+        </div>
+      </div>
+
+      <!-- Card: Destinatário -->
+      <div class="form-card">
+        <h3 class="form-card-title">
+          <span class="title-dot secondary"></span>
+          Destinatário
+        </h3>
+
+        <% if @package.errors.any? %>
+          <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:12px 16px; margin-bottom:18px; color:#dc2626; font-size:0.82rem; font-weight:600;">
+            <ul style="margin:0; padding-left:16px;">
+              <% @package.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="form-grid">
+          <div class="form-group col-span-2">
+            <label class="form-label" for="package_destinatario">Nome Completo</label>
+            <%= f.text_field :destinatario, id: "package_destinatario",
+                class: "form-input",
+                placeholder: "Ex: Maria Oliveira" %>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="package_regiao">Cidade / Estado</label>
+            <%= f.text_field :regiao, id: "package_regiao",
+                class: "form-input",
+                placeholder: "Ex: Curitiba - PR" %>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="package_cep">CEP</label>
+            <input type="text" id="package_cep" class="form-input" placeholder="00000-000" maxlength="9">
+          </div>
+
+          <div class="form-group col-span-2">
+            <label class="form-label" for="package_endereco">Endereço de Entrega</label>
+            <%= f.text_field :endereco, id: "package_endereco",
+                class: "form-input",
+                placeholder: "Rua, Número, Complemento, Bairro" %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Dimensões e Peso -->
+      <div class="form-card">
+        <h3 class="form-card-title">
+          <span class="title-dot accent"></span>
+          Dimensões e Peso
+        </h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="package_peso">Peso (kg)</label>
+            <%= f.number_field :peso, id: "package_peso",
+                class: "form-input",
+                placeholder: "0.00",
+                step: "0.01", min: "0" %>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Dimensões CxLxA (cm)</label>
+            <div class="dimensions-row">
+              <input type="number" class="form-input" id="dim_c" placeholder="C" min="0" step="0.1">
+              <input type="number" class="form-input" id="dim_l" placeholder="L" min="0" step="0.1">
+              <input type="number" class="form-input" id="dim_a" placeholder="A" min="0" step="0.1">
+            </div>
+          </div>
+
+          <!-- Campo oculto dimensoes que combina C x L x A -->
+          <%= f.hidden_field :dimensoes, id: "package_dimensoes" %>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Coluna Direita: Resumo Sticky -->
+    <aside>
+      <div class="summary-card">
+        <h3>Resumo do Pedido</h3>
+
+        <div class="summary-route">
+          <div class="summary-route-endpoint">
+            <p class="label">Origem</p>
+            <p class="value" id="summary-origem">São Paulo, SP</p>
+          </div>
+          <span class="summary-route-arrow">→</span>
+          <div class="summary-route-endpoint" style="text-align:right;">
+            <p class="label">Destino</p>
+            <p class="value" id="summary-destino">---</p>
+          </div>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="summary-line">
+          <span>Frete Base</span>
+          <span id="summary-frete">R$ 0,00</span>
+        </div>
+        <div class="summary-line">
+          <span>Taxas Adicionais</span>
+          <span>R$ 0,00</span>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="summary-total-row">
+          <span class="summary-total-label">Total Estimado</span>
+          <span class="summary-total-value" id="summary-total">R$ 0,00</span>
+        </div>
+
+        <div class="summary-info-box">
+          <span class="summary-info-icon">ℹ️</span>
+          <p>O valor final pode variar dependendo do peso aferido no momento da coleta.</p>
+        </div>
+
+        <%= f.submit "Confirmar Envio", id: "confirmBtn", class: "btn-confirmar" %>
+
+        <p class="summary-guarantee">Garantia Rotagily Safe™ Inclusa</p>
+
+        <div class="help-card">
+          <span class="help-card-bg-icon">📦</span>
+          <div class="help-card-icon">✅</div>
+          <div class="help-card-text">
+            <strong>Precisa de Ajuda?</strong>
+            <span>Fale com seu gerente de contas.</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+<% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const regiaoInput  = document.getElementById("package_regiao");
+    const pesoInput    = document.getElementById("package_peso");
+    const summaryDest  = document.getElementById("summary-destino");
+    const summaryFrete = document.getElementById("summary-frete");
+    const summaryTotal = document.getElementById("summary-total");
+    const dimC = document.getElementById("dim_c");
+    const dimL = document.getElementById("dim_l");
+    const dimA = document.getElementById("dim_a");
+    const dimField = document.getElementById("package_dimensoes");
+    const confirmBtn = document.getElementById("confirmBtn");
+
+    // Atualiza destino no resumo
+    if (regiaoInput) {
+      regiaoInput.addEventListener("input", function () {
+        summaryDest.textContent = this.value.trim() || "---";
+      });
+    }
+
+    // Calcula frete estimado baseado no peso
+    function calcFrete() {
+      const peso = parseFloat(pesoInput?.value) || 0;
+      const base = 42.50;
+      const adicional = peso * 3.20;
+      const total = peso > 0 ? (base + adicional) : 0;
+      const fmt = (v) => "R$ " + v.toFixed(2).replace(".", ",");
+      summaryFrete.textContent = fmt(peso > 0 ? base : 0);
+      summaryTotal.textContent = fmt(total);
+    }
+
+    if (pesoInput) pesoInput.addEventListener("input", calcFrete);
+
+    // Combina dimensões em um único campo
+    function updateDimensoes() {
+      const c = dimC?.value || "";
+      const l = dimL?.value || "";
+      const a = dimA?.value || "";
+      if (c || l || a) {
+        dimField.value = `${c}x${l}x${a}`;
+      }
+    }
+
+    [dimC, dimL, dimA].forEach(el => {
+      if (el) el.addEventListener("input", updateDimensoes);
+    });
+
+    // Máscara simples de CEP
+    const cepInput = document.getElementById("package_cep");
+    if (cepInput) {
+      cepInput.addEventListener("input", function () {
+        let v = this.value.replace(/\D/g, "").slice(0, 8);
+        if (v.length > 5) v = v.slice(0, 5) + "-" + v.slice(5);
+        this.value = v;
+      });
+    }
+
+    // Feedback no botão ao submeter
+    const form = confirmBtn?.closest("form");
+    if (form && confirmBtn) {
+      form.addEventListener("submit", function () {
+        confirmBtn.textContent = "⏳ Processando...";
+        confirmBtn.classList.add("loading");
+      });
+    }
+
+    // Micro-interação: scale nos inputs ao focar
+    document.querySelectorAll(".form-input:not([readonly])").forEach(function (input) {
+      input.addEventListener("focus", function () {
+        this.parentElement.style.transform = "scale(1.01)";
+        this.parentElement.style.transition = "transform 0.25s ease";
+      });
+      input.addEventListener("blur", function () {
+        this.parentElement.style.transform = "";
+      });
+    });
+  });
+</script>

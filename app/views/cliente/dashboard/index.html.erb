@@ -1,0 +1,105 @@
+<div class="page-header">
+  <h2>Entregas em Andamento</h2>
+  <p>Acompanhe suas remessas que estão em trânsito agora.</p>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <span class="kpi-watermark">🚚</span>
+    <p class="kpi-label">Total em trânsito</p>
+    <div class="kpi-value-row">
+      <h2><%= @total_em_transito > 0 ? sprintf("%02d", @total_em_transito) : "00" %></h2>
+      <span class="kpi-badge">
+        <%= @total_em_transito > 0 ? "+#{@total_em_transito} hoje" : "Nenhuma" %>
+      </span>
+    </div>
+  </div>
+
+  <div class="kpi-card">
+    <span class="kpi-watermark">⏰</span>
+    <p class="kpi-label">Previsão para hoje</p>
+    <div class="kpi-value-row">
+      <h2><%= sprintf("%02d", @previsao_hoje) %></h2>
+      <span class="kpi-badge muted">Dentro do prazo</span>
+    </div>
+  </div>
+
+  <div class="kpi-card">
+    <span class="kpi-watermark">📍</span>
+    <p class="kpi-label">Principais Rotas</p>
+    <div class="kpi-value-row">
+      <h2><%= sprintf("%02d", @principais_rotas) %></h2>
+      <span class="kpi-badge muted">Interestaduais</span>
+    </div>
+  </div>
+</div>
+
+<!-- Tabela de Entregas -->
+<div class="entregas-section">
+  <table class="entregas-table">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Destinatário</th>
+        <th>Destino</th>
+        <th>Status</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @entregas.any? %>
+        <% @entregas.each do |entrega| %>
+          <tr>
+            <td>
+              <span class="tracking-code"><%= entrega.codigo_rastreio %></span>
+            </td>
+            <td>
+              <div class="recipient-cell">
+                <div class="recipient-avatar">
+                  <%= entrega.destinatario.to_s.gsub(/[^A-Za-z ]/, '').split.map(&:first).first(2).join.upcase %>
+                </div>
+                <span class="recipient-name"><%= entrega.destinatario %></span>
+              </div>
+            </td>
+            <td>
+              <span class="destination-text"><%= entrega.regiao || "Não informado" %></span>
+            </td>
+            <td>
+              <% status_class = case entrega.status&.downcase
+                when 'em_transito', 'em rota', 'em_rota' then 'status-em-transito'
+                when 'entregue'                           then 'status-entregue'
+                when 'atrasado'                           then 'status-atrasado'
+                else                                          'status-processando'
+              end %>
+              <% status_label = case entrega.status&.downcase
+                when 'em_transito', 'em rota', 'em_rota' then 'Em Trânsito'
+                when 'entregue'                           then 'Entregue'
+                when 'atrasado'                           then 'Atrasado'
+                else                                          'Processando'
+              end %>
+              <span class="status-pill <%= status_class %>">
+                <span class="dot"></span>
+                <%= status_label %>
+              </span>
+            </td>
+            <td>
+              <%= link_to tracking_status_path(entrega.codigo_rastreio), class: "btn-map-action", title: "Ver rastreamento" do %>
+                🗺️
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="5">
+            <div class="empty-state">
+              <div class="empty-icon">📭</div>
+              <p>Nenhuma entrega em andamento no momento.</p>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

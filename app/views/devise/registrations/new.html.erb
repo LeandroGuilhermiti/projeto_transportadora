@@ -11,14 +11,15 @@
 
   <div class="split-right">
     <div class="auth-form-container">
-      <h2>Crie sua conta (<%= params[:cargo] == 'motorista' ? 'Entregador' : 'Cliente' %>)</h2>
+      <% cargo = params[:cargo] || resource.cargo || 'cliente' %>
+      <h2>Crie sua conta (<%= cargo == 'motorista' ? 'Entregador' : 'Cliente' %>)</h2>
 
       <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
 
-        <%= f.hidden_field :cargo, value: params[:cargo] || 'cliente' %>
+        <%= f.hidden_field :cargo, value: cargo %>
 
-        <% if params[:cargo] == 'motorista' %>
+        <% if cargo == 'motorista' %>
         <div class="field">
           <%= f.text_field :regiao_atuacao, placeholder: "Região de Atuação (ex: Zona Leste)", class: "auth-input", required: true %>
         </div>

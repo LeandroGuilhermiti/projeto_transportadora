@@ -16,6 +16,8 @@ class ApplicationController < ActionController::Base
       "application"
     elsif current_user&.admin?
       "admin"
+    elsif current_user&.cliente?
+      "cliente"
     else
       "application"
     end
@@ -26,6 +28,8 @@ class ApplicationController < ActionController::Base
       admin_dashboard_path
     elsif resource.motorista?
       packages_path
+    elsif resource.cliente?
+      cliente_dashboard_path
     else
       super
     end

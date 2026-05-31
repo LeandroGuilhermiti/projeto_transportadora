@@ -20,6 +20,11 @@ Rails.application.routes.draw do
     resources :drivers, only: [:index]
   end
 
+  namespace :cliente do
+    get "dashboard", to: "dashboard#index", as: "dashboard"
+    resources :entregas, only: [:new, :create]
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 
 end

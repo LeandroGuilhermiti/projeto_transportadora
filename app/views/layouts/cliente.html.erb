@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Rotagily - Minhas Entregas</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "cliente", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "cliente_nova_entrega", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+
+    <script>
+      function setTheme(theme) {
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark-mode');
+          localStorage.setItem('theme', 'dark');
+          updateThemeButtons('dark');
+        } else {
+          document.documentElement.classList.remove('dark-mode');
+          localStorage.setItem('theme', 'light');
+          updateThemeButtons('light');
+        }
+      }
+
+      function updateThemeButtons(theme) {
+        const btnLight = document.getElementById('btn-theme-light');
+        const btnDark  = document.getElementById('btn-theme-dark');
+        if (btnLight && btnDark) {
+          if (theme === 'dark') {
+            btnDark.classList.add('active');
+            btnLight.classList.remove('active');
+          } else {
+            btnLight.classList.add('active');
+            btnDark.classList.remove('active');
+          }
+        }
+      }
+
+      const initTheme = localStorage.getItem('theme') || 'light';
+      if (initTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+
+      document.addEventListener("turbo:load", function() {
+        updateThemeButtons(localStorage.getItem('theme') || 'light');
+      });
+      document.addEventListener("DOMContentLoaded", function() {
+        updateThemeButtons(localStorage.getItem('theme') || 'light');
+      });
+    </script>
+  </head>
+
+  <body class="cliente-body">
+    <div class="cliente-wrapper">
+
+      <!-- Sidebar -->
+      <aside class="cliente-sidebar">
+        <div class="sidebar-brand">
+          <%= link_to cliente_dashboard_path do %>
+            <h3>Rotagily</h3>
+            <p>LOGÍSTICA INTELIGENTE</p>
+          <% end %>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="<%= cliente_dashboard_path %>" class="nav-item <%= current_page?(cliente_dashboard_path) ? 'active' : '' %>">
+            <span class="nav-icon">📦</span>
+            Em andamento
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon">🕑</span>
+            Histórico
+          </a>
+          <a href="#" class="nav-item">
+            <span class="nav-icon">⚙️</span>
+            Configurações
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="<%= new_cliente_entrega_path %>" class="btn-nova-entrega">+ Nova Entrega</a>
+
+          <!-- User Profile -->
+          <div class="sidebar-user-profile">
+            <div class="sidebar-user-avatar">
+              <%= (current_user&.nome || "U").first(2).upcase %>
+            </div>
+            <div class="sidebar-user-info">
+              <strong><%= current_user&.nome || "Cliente" %></strong>
+              <span>Cliente</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <div class="cliente-main-content">
+
+        <!-- Topbar -->
+        <header class="cliente-topbar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="Rastrear por código ou destinatário...">
+          </div>
+          <div class="topbar-actions">
+            <button class="topbar-icon-btn" title="Notificações">
+              🔔
+              <span class="notification-dot"></span>
+            </button>
+            <button class="topbar-icon-btn" title="Ajuda">❓</button>
+            <%= button_to "Sair", destroy_user_session_path, method: :delete, class: "btn-sair" %>
+          </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="cliente-yield">
+          <%= yield %>
+        </main>
+      </div>
+
+    </div>
+
+    <script>
+      // Micro-interação: clique nas linhas da tabela
+      document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.entregas-table tbody tr').forEach(function(row) {
+          row.addEventListener('click', function() {
+            row.style.transform = 'scale(0.995)';
+            setTimeout(function() { row.style.transform = ''; }, 100);
+          });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+          searchInput.addEventListener('focus', function() {
+            searchInput.parentElement.style.transform = 'scale(1.02)';
+          });
+          searchInput.addEventListener('blur', function() {
+            searchInput.parentElement.style.transform = '';
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
