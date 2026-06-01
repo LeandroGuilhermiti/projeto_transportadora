@@ -1,0 +1,80 @@
+<div class="st-wrapper">
+  
+  <div class="st-header" style="margin-bottom: 30px;">
+    <h2 class="st-title" style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Configurações</h2>
+    <p class="st-subtitle" style="color: var(--text-muted); font-size: 0.95rem;">Gerencie suas preferências de conta e configurações do painel.</p>
+  </div>
+
+  <!-- User Profile Section -->
+  <section class="st-section" style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-light); border: 1px solid var(--border-color); margin-bottom: 24px;">
+    <div class="st-section-title" style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+      <div class="st-section-icon">👤</div>
+      Perfil do Cliente
+    </div>
+
+    <div class="st-profile-grid" style="display: flex; gap: 32px; align-items: flex-start;">
+      <!-- Avatar Area -->
+      <div class="st-avatar-container" style="position: relative;">
+        <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--accent-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700;">
+          <%= current_user&.nome&.chars&.first(2)&.join&.upcase || "CL" %>
+        </div>
+      </div>
+
+      <!-- Form Area -->
+      <div class="st-form-fields" style="flex: 1; display: grid; grid-template-columns: 1fr; gap: 16px;">
+        <div class="st-field">
+          <label class="st-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">Nome Completo / Empresa</label>
+          <input type="text" class="st-input" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; background: var(--input-bg); color: var(--text-main);" value="<%= current_user&.nome || "Cliente" %>" readonly>
+        </div>
+
+        <div class="st-field">
+          <label class="st-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">E-mail de Acesso</label>
+          <input type="email" class="st-input" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; background: var(--input-bg); color: var(--text-main);" value="<%= current_user&.email %>" readonly>
+        </div>
+        
+        <div style="margin-top: 10px;">
+          <button class="btn-primary-blue" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 16px; border-radius: 6px; font-weight: 500; font-size: 0.9rem; cursor: not-allowed; opacity: 0.6;">
+            🔒 Alterar Senha de Acesso
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preferences Section -->
+  <section class="st-section" style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-light); border: 1px solid var(--border-color); margin-bottom: 24px;">
+    <div class="st-section-title" style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+      <div class="st-section-icon">⚙️</div>
+      Preferências do Sistema
+    </div>
+
+    <div class="st-prefs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+      <!-- Notificações -->
+      <div class="st-field">
+        <label class="st-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 10px;">Notificações de Entrega</label>
+        <div style="display: flex; gap: 12px;">
+          <button style="flex: 1; padding: 10px; border: 2px solid var(--accent-blue); background: var(--surface-container-low); color: var(--accent-blue); font-weight: 600; border-radius: 8px; cursor: pointer;">
+            Ativadas
+          </button>
+          <button style="flex: 1; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-muted); font-weight: 500; border-radius: 8px; cursor: pointer;">
+            Desativadas
+          </button>
+        </div>
+      </div>
+
+      <!-- Theme -->
+      <div class="st-field">
+        <label class="st-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 10px;">Tema Visual</label>
+        <div style="display: flex; gap: 12px;">
+          <button id="btn-theme-light" class="active" onclick="setTheme('light')" style="flex: 1; padding: 10px; border: 2px solid var(--accent-blue); background: var(--surface-container-low); color: var(--accent-blue); font-weight: 600; border-radius: 8px; cursor: pointer;">
+            ☀️ Light
+          </button>
+          <button id="btn-theme-dark" onclick="setTheme('dark')" style="flex: 1; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-muted); font-weight: 500; border-radius: 8px; cursor: pointer;">
+            🌙 Dark
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>

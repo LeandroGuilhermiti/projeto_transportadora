@@ -70,11 +70,11 @@
             <span class="nav-icon">📦</span>
             Em andamento
           </a>
-          <a href="#" class="nav-item">
+          <a href="<%= cliente_historico_path %>" class="nav-item <%= current_page?(cliente_historico_path) ? 'active' : '' %>">
             <span class="nav-icon">🕑</span>
             Histórico
           </a>
-          <a href="#" class="nav-item">
+          <a href="<%= cliente_settings_path %>" class="nav-item <%= current_page?(cliente_settings_path) ? 'active' : '' %>">
             <span class="nav-icon">⚙️</span>
             Configurações
           </a>
@@ -100,17 +100,8 @@
       <div class="cliente-main-content">
 
         <!-- Topbar -->
-        <header class="cliente-topbar">
-          <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search-input" placeholder="Rastrear por código ou destinatário...">
-          </div>
+        <header class="cliente-topbar" style="justify-content: flex-end;">
           <div class="topbar-actions">
-            <button class="topbar-icon-btn" title="Notificações">
-              🔔
-              <span class="notification-dot"></span>
-            </button>
-            <button class="topbar-icon-btn" title="Ajuda">❓</button>
             <%= button_to "Sair", destroy_user_session_path, method: :delete, class: "btn-sair" %>
           </div>
         </header>

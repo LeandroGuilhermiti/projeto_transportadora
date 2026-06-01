@@ -5,7 +5,7 @@
       <h1 class="page-title">Gestão de Motoristas</h1>
       <p class="page-subtitle">Acompanhamento de status e informações da equipe.</p>
     </div>
-    <%= link_to new_user_registration_path, class: "btn-primary-blue", data: { turbo: false } do %>
+    <%= link_to new_admin_driver_path, class: "btn-primary-blue", data: { turbo: false } do %>
       + Adicionar Motorista
     <% end %>
   </div>
@@ -117,7 +117,7 @@
             <% else %>
               <span style="font-size: 0.8rem; color: var(--text-muted);">Sem entrega ativa no momento</span>
             <% end %>
-            <%= link_to "Ver Entregas", admin_packages_path(q: motorista.nome), class: "btn-ver-perfil", data: { turbo: false } %>
+            <%= link_to "Ver Entregas", admin_packages_path(driver_id: motorista.id), class: "btn-ver-perfil", data: { turbo: false } %>
           </div>
         </div>
       <% end %>

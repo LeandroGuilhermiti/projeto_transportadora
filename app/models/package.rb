@@ -1,5 +1,6 @@
 class Package < ApplicationRecord
   belongs_to :driver, class_name: "User", optional: true
+  belongs_to :user, optional: true
   has_many :tracking_events, dependent: :destroy
 
   CAPITAL_COORDINATES = {

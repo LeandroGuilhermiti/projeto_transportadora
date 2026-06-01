@@ -1,0 +1,67 @@
+<div class="page-header">
+  <h2>Histórico de Entregas</h2>
+  <p>Consulte os pacotes que já foram entregues com sucesso.</p>
+</div>
+
+<!-- Tabela de Entregas -->
+<div class="entregas-section" style="margin-top: 24px;">
+  <table class="entregas-table">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Destinatário</th>
+        <th>Destino</th>
+        <th>Data da Entrega</th>
+        <th>Status</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @entregas_entregues.any? %>
+        <% @entregas_entregues.each do |entrega| %>
+          <tr>
+            <td>
+              <span class="tracking-code"><%= entrega.codigo_rastreio %></span>
+            </td>
+            <td>
+              <div class="recipient-cell">
+                <div class="recipient-avatar">
+                  <%= entrega.destinatario.to_s.gsub(/[^A-Za-z ]/, '').split.map(&:first).first(2).join.upcase %>
+                </div>
+                <span class="recipient-name"><%= entrega.destinatario %></span>
+              </div>
+            </td>
+            <td>
+              <span class="destination-text"><%= entrega.regiao || "Não informado" %></span>
+            </td>
+            <td>
+              <span style="font-size: 0.9rem; color: var(--text-muted);">
+                <%= entrega.updated_at.strftime("%d/%m/%Y às %H:%M") %>
+              </span>
+            </td>
+            <td>
+              <span class="status-pill status-entregue">
+                <span class="dot"></span>
+                Entregue ✓
+              </span>
+            </td>
+            <td>
+              <%= link_to cliente_entrega_path(entrega), class: "btn-map-action", title: "Ver histórico detalhado", data: { turbo: false } do %>
+                🗺️
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="6">
+            <div class="empty-state">
+              <div class="empty-icon">📦</div>
+              <p>Nenhuma entrega concluída ainda.</p>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

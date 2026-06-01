@@ -17,7 +17,7 @@ Rails.application.routes.draw do
     get "settings", to: "settings#index"
     resources :packages, only: [:index, :new, :create]
     resources :entregas, only: [:index, :new, :create]
-    resources :drivers, only: [:index]
+    resources :drivers, only: [:index, :new, :create]
 
     # Acompanhar Rotas — Admin (acesso total)
     get  "rotas",          to: "rotas#index",   as: "rotas"
@@ -28,7 +28,9 @@ Rails.application.routes.draw do
 
   namespace :cliente do
     get "dashboard", to: "dashboard#index", as: "dashboard"
-    resources :entregas, only: [:new, :create]
+    get "historico", to: "historico#index", as: "historico"
+    get "settings", to: "settings#index", as: "settings"
+    resources :entregas, only: [:new, :create, :show]
   end
 
   # Acompanhar Rotas — Motorista (visualizar + avançar suas próprias rotas)

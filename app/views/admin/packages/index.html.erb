@@ -2,8 +2,16 @@
   <!-- Cabeçalho -->
   <div class="page-header-row">
     <div>
-      <h1 class="page-title">Pacotes</h1>
-      <p class="page-subtitle">Cadastro e dados físicos dos pacotes registrados no sistema.</p>
+      <% if @motorista_filtro %>
+        <div style="margin-bottom: 6px;">
+          <%= link_to "← Voltar para Motoristas", admin_drivers_path, style: "font-size: 0.85rem; color: var(--accent-blue); text-decoration: none;", data: { turbo: false } %>
+        </div>
+        <h1 class="page-title">Entregas de <%= @motorista_filtro.nome %></h1>
+        <p class="page-subtitle">Pacotes atribuídos a este motorista.</p>
+      <% else %>
+        <h1 class="page-title">Pacotes</h1>
+        <p class="page-subtitle">Cadastro e dados físicos dos pacotes registrados no sistema.</p>
+      <% end %>
     </div>
     <%= link_to "+ Novo Pacote", new_admin_package_path, class: "btn-primary-blue", data: { turbo: false } %>
   </div>

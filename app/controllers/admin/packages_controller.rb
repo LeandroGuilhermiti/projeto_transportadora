@@ -9,6 +9,11 @@ class Admin::PackagesController < ApplicationController
     end
 
     @packages = Package.all.order(created_at: :desc)
+
+    if params[:driver_id].present?
+      @motorista_filtro = User.find_by(id: params[:driver_id])
+      @packages = @packages.where(driver_id: params[:driver_id]) if @motorista_filtro
+    end
   end
 
   def new

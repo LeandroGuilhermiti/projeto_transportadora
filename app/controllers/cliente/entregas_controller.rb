@@ -4,13 +4,19 @@ module Cliente
     before_action :require_cliente!
     layout "cliente"
 
+    def show
+      @entrega = current_user.client_packages.find(params[:id])
+      @eventos = @entrega.tracking_events.order(created_at: :desc)
+    end
+
     def new
       @package = Package.new
     end
 
     def create
       @package = Package.new(package_params)
-      @package.status = "Processando"
+      @package.status = "Pendente"
+      @package.user_id = current_user.id
 
       if @package.save
         redirect_to cliente_dashboard_path,

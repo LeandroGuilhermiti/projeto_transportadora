@@ -7,6 +7,7 @@ class User < ApplicationRecord
   validates :nome, presence: true
 
   has_many :packages, foreign_key: 'driver_id'
+  has_many :client_packages, class_name: 'Package', foreign_key: 'user_id'
 
   before_validation :set_default_cargo, on: :create
   before_save :limpar_regiao_atuacao_se_nao_for_motorista

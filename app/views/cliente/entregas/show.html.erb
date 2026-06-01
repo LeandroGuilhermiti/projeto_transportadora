@@ -1,0 +1,179 @@
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+  <div>
+    <%= link_to "← Voltar ao Dashboard", cliente_dashboard_path, style: "color: var(--accent-blue); text-decoration: none; font-size: 0.9rem; margin-bottom: 8px; display: inline-block;", data: { turbo: false } %>
+    <h2>Detalhes da Entrega</h2>
+    <p>Acompanhamento do pacote <strong style="font-family: monospace; color: var(--accent-blue);"><%= @entrega.codigo_rastreio %></strong></p>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+  <!-- Card da Esquerda: Resumo -->
+  <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border-color);">
+    <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+      📦 Informações do Pacote
+    </h3>
+    
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div>
+        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Destinatário</span>
+        <strong style="color: var(--text-main); font-size: 1rem;"><%= @entrega.destinatario %></strong>
+      </div>
+      
+      <div>
+        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Endereço de Entrega</span>
+        <span style="color: var(--text-main); font-size: 0.95rem;"><%= @entrega.endereco %></span>
+      </div>
+      
+      <div>
+        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Destino / Região</span>
+        <span style="color: var(--text-main); font-size: 0.95rem;"><%= @entrega.regiao %></span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <span style="display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Peso</span>
+          <span style="color: var(--text-main); font-size: 0.95rem;"><%= @entrega.peso.present? ? "#{@entrega.peso} kg" : "—" %></span>
+        </div>
+        <div>
+          <span style="display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Dimensões</span>
+          <span style="color: var(--text-main); font-size: 0.95rem;"><%= @entrega.dimensoes.present? ? @entrega.dimensoes : "—" %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card da Direita: Histórico -->
+  <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border-color);">
+    <h3 style="font-size: 1.3rem; color: var(--text-main); margin-bottom: 24px; font-weight: 700;">
+      Histórico de Eventos
+    </h3>
+
+    <div class="client-timeline">
+      <% if @eventos.empty? %>
+        <div class="timeline-item">
+          <div class="timeline-marker">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-title-row">
+              <h4 style="color: var(--text-main);">Pedido Criado</h4>
+              <span class="timeline-time"><%= @entrega.created_at.strftime("%d/%m %H:%M") %></span>
+            </div>
+            <p class="timeline-desc">Informações de envio registradas no sistema.</p>
+          </div>
+        </div>
+      <% else %>
+        <% @eventos.each_with_index do |evento, index| %>
+          <div class="timeline-item <%= 'latest' if index == 0 %>">
+            <div class="timeline-marker">✓</div>
+            <div class="timeline-content">
+              <div class="timeline-title-row">
+                <h4 style="color: var(--text-main);"><%= evento.status %></h4>
+                <span class="timeline-time"><%= evento.created_at.strftime(evento.created_at.today? ? "%H:%M" : "%d/%m %H:%M") %></span>
+              </div>
+              <p class="timeline-desc"><%= evento.descricao %></p>
+              <% if evento.localizacao.present? %>
+                <p class="timeline-loc">📍 <%= evento.localizacao %></p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        
+        <!-- Sempre mostra a criação no final -->
+        <div class="timeline-item">
+          <div class="timeline-marker">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-title-row">
+              <h4 style="color: var(--text-main);">Pedido Criado</h4>
+              <span class="timeline-time"><%= @entrega.created_at.strftime(evento.created_at.today? ? "%H:%M" : "%d/%m %H:%M") rescue @entrega.created_at.strftime("%d/%m %H:%M") %></span>
+            </div>
+            <p class="timeline-desc">Informações de envio registradas no sistema.</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .client-timeline {
+    position: relative;
+    padding-left: 20px;
+  }
+  .client-timeline::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    bottom: 0;
+    left: 29px; /* center of marker */
+    width: 2px;
+    background: #e5e7eb;
+    z-index: 0;
+  }
+  .timeline-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+  }
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+  .timeline-item:last-child::after {
+    /* Hide the line after the last item */
+    content: '';
+    position: absolute;
+    top: 20px;
+    bottom: -100px;
+    left: 9px;
+    width: 4px;
+    background: white;
+    z-index: 0;
+  }
+  .timeline-marker {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1d4ed8;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    flex-shrink: 0;
+    z-index: 2;
+    box-shadow: 0 0 0 4px #eff6ff; /* Faint blue border aura */
+  }
+  .timeline-content {
+    flex: 1;
+    padding-top: 1px;
+  }
+  .timeline-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .timeline-title-row h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .timeline-time {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+  }
+  .timeline-desc {
+    margin: 0 0 4px 0;
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.4;
+  }
+  .timeline-loc {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #2563eb;
+    font-weight: 500;
+  }
+</style>

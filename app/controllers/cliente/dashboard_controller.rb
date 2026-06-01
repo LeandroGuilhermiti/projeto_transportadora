@@ -5,8 +5,10 @@ module Cliente
     layout "cliente"
 
     def index
-      @entregas = current_user.packages.order(created_at: :desc)
-      @total_em_transito = @entregas.where(status: ['em_transito', 'em rota', 'em_rota']).count
+      @entregas = current_user.client_packages
+                              .where.not("LOWER(status) = ?", 'entregue')
+                              .order(created_at: :desc)
+      @total_em_transito = @entregas.where(status: ['em_transito', 'em rota', 'em_rota', 'Processando']).count
       @previsao_hoje     = @entregas.where(status: ['em_transito', 'em rota', 'em_rota']).count
       @principais_rotas  = @entregas.select(:regiao).distinct.count
     end
