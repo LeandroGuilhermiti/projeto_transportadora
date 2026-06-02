@@ -82,6 +82,16 @@
               <span class="data-key">Dimensões</span>
               <span class="data-value"><%= @package.dimensoes.present? ? @package.dimensoes : "Não especificado" %></span>
             </div>
+            <div class="pkg-data-item">
+              <span class="data-key">Valor Estimado</span>
+              <span class="data-value" style="color: #10b981; font-weight: 700;">
+                <% if @package.peso.present? && @package.peso.to_f > 0 %>
+                  <%= number_to_currency(42.50 + (@package.peso.to_f * 3.20), unit: "R$ ", separator: ",", delimiter: ".") %>
+                <% else %>
+                  R$ 0,00
+                <% end %>
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -198,51 +208,56 @@
         </div>
       </div>
 
-      <!-- Timeline Section -->
-      <div class="card-tonal" style="flex: 1; display: flex; flex-direction: column;">
-        <h3 class="timeline-title">Histórico de Eventos</h3>
-        
-        <div class="timeline-container" id="timeline-container">
-          <div class="timeline-track"></div>
 
-          <% events = @package.tracking_events.order(created_at: :desc) %>
-          <% if events.any? %>
-            <% events.each do |event| %>
-              <div class="timeline-item active">
-                <div class="timeline-icon">✓</div>
-                <div class="timeline-content">
-                  <div class="timeline-header">
-                    <p class="timeline-step"><%= event.status %></p>
-                    <span class="timeline-time"><%= event.created_at.strftime("%H:%M") %></span>
-                  </div>
-                  <p class="timeline-desc">
-                    <%= event.descricao %>
-                    <% if event.localizacao.present? %>
-                      <br/><small style="color: var(--color-blue);">📍 <%= event.localizacao %></small>
-                    <% end %>
-                  </p>
-                </div>
-              </div>
-            <% end %>
-          <% else %>
-            <!-- Estado Inicial: Apenas Criado -->
-            <div class="timeline-item active">
-              <div class="timeline-icon">✓</div>
-              <div class="timeline-content">
-                <div class="timeline-header">
-                  <p class="timeline-step">Pedido Criado</p>
-                  <span class="timeline-time"><%= @package.created_at.strftime("%d/%m %H:%M") %></span>
-                </div>
-                <p class="timeline-desc">Informações de envio registradas no sistema.</p>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      </div>
 
     </div>
 
   </div>
+
+  <!-- Timeline Section Centered Below -->
+  <div style="margin: 30px auto 0; max-width: 800px;">
+    <div class="card-tonal" style="display: flex; flex-direction: column;">
+      <h3 class="timeline-title" style="text-align: center;">Histórico de Eventos</h3>
+      
+      <div class="timeline-container" id="timeline-container" style="margin: 0 auto; width: 100%; max-width: 600px;">
+        <div class="timeline-track"></div>
+
+        <% events = @package.tracking_events.order(created_at: :desc) %>
+        <% if events.any? %>
+          <% events.each do |event| %>
+            <div class="timeline-item active">
+              <div class="timeline-icon">✓</div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <p class="timeline-step"><%= event.status %></p>
+                  <span class="timeline-time"><%= event.created_at.strftime("%H:%M") %></span>
+                </div>
+                <p class="timeline-desc">
+                  <%= event.descricao %>
+                  <% if event.localizacao.present? %>
+                    <br/><small style="color: var(--color-blue);">📍 <%= event.localizacao %></small>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <!-- Estado Inicial: Apenas Criado -->
+          <div class="timeline-item active">
+            <div class="timeline-icon">✓</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <p class="timeline-step">Pedido Criado</p>
+                <span class="timeline-time"><%= @package.created_at.strftime("%d/%m %H:%M") %></span>
+              </div>
+              <p class="timeline-desc">Informações de envio registradas no sistema.</p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Scripts e Estilos do Leaflet -->

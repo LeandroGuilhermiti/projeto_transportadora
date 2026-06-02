@@ -17,7 +17,7 @@ Rails.application.routes.draw do
     get "settings", to: "settings#index"
     resources :packages, only: [:index, :new, :create]
     resources :entregas, only: [:index, :new, :create]
-    resources :drivers, only: [:index, :new, :create]
+    resources :drivers, only: [:index, :new, :create, :destroy]
 
     # Acompanhar Rotas — Admin (acesso total)
     get  "rotas",          to: "rotas#index",   as: "rotas"

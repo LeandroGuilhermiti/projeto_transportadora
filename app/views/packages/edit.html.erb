@@ -112,7 +112,7 @@
           <div class="pkg-form-group">
             <label class="pkg-form-label">Peso (kg)</label>
             <div class="input-icon-wrapper">
-              <%= form.number_field :peso, class: "pkg-input", step: "0.1" %>
+              <%= form.number_field :peso, class: "pkg-input", step: "0.1", id: "package_peso" %>
               <span class="input-icon-suffix">KG</span>
             </div>
           </div>
@@ -120,6 +120,12 @@
             <label class="pkg-form-label">Dimensões</label>
             <%= form.text_field :dimensoes, class: "pkg-input", placeholder: "CxLxA (cm)" %>
           </div>
+        </div>
+
+        <!-- Valor Estimado da Entrega -->
+        <div style="margin-top: 15px; padding: 15px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <label class="pkg-form-label" style="margin-bottom: 5px;">Valor Estimado da Entrega</label>
+          <div style="font-size: 1.5rem; font-weight: 700; color: #10b981;" id="summary-total">R$ 0,00</div>
         </div>
 
         <div style="margin-top: 25px; padding: 15px; background-color: rgba(20, 97, 172, 0.05); border-radius: 12px; display: flex; gap: 15px; align-items: flex-start;">
@@ -146,3 +152,26 @@
 
   <% end %>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const pesoInput = document.getElementById("package_peso");
+    const summaryTotal = document.getElementById("summary-total");
+
+    function calcFrete() {
+      const peso = parseFloat(pesoInput?.value) || 0;
+      const base = 42.50;
+      const adicional = peso * 3.20;
+      const total = peso > 0 ? (base + adicional) : 0;
+      const fmt = (v) => "R$ " + v.toFixed(2).replace(".", ",");
+      if (summaryTotal) {
+        summaryTotal.textContent = fmt(total);
+      }
+    }
+
+    if (pesoInput) {
+      pesoInput.addEventListener("input", calcFrete);
+      calcFrete(); // Calcula inicialmente
+    }
+  });
+</script>

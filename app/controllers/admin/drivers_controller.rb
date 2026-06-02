@@ -26,6 +26,16 @@ class Admin::DriversController < ApplicationController
     end
   end
 
+  def destroy
+    @motorista = User.find(params[:id])
+    if @motorista.cargo == 'motorista'
+      @motorista.destroy
+      redirect_to admin_drivers_path, notice: "Motorista excluído com sucesso."
+    else
+      redirect_to admin_drivers_path, alert: "Apenas motoristas podem ser excluídos."
+    end
+  end
+
   private
 
   def driver_params

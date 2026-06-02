@@ -108,16 +108,34 @@
             </div>
           </div>
 
-          <div class="driver-card-footer">
-            <% pacote_ativo = motorista.packages.where(status: 'Em Rota').first %>
-            <% if pacote_ativo %>
-              <span style="font-size: 0.8rem; color: var(--text-muted);">
-                📦 Rastreio: <strong><%= pacote_ativo.codigo_rastreio %></strong>
-              </span>
-            <% else %>
-              <span style="font-size: 0.8rem; color: var(--text-muted);">Sem entrega ativa no momento</span>
-            <% end %>
-            <%= link_to "Ver Entregas", admin_packages_path(driver_id: motorista.id), class: "btn-ver-perfil", data: { turbo: false } %>
+          <div class="driver-card-footer" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <% pacote_ativo = motorista.packages.where(status: 'Em Rota').first %>
+              <% if pacote_ativo %>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                  📦 Rastreio: <strong><%= pacote_ativo.codigo_rastreio %></strong>
+                </span>
+              <% else %>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Sem entrega ativa no momento</span>
+              <% end %>
+            </div>
+            
+            <div style="display: flex; gap: 10px; width: 100%;" id="driver-actions-<%= motorista.id %>">
+              <button onclick="document.getElementById('driver-actions-<%= motorista.id %>').style.display='none'; document.getElementById('driver-confirm-<%= motorista.id %>').style.display='flex';" class="btn-ver-perfil" style="background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; flex: 1; cursor: pointer;">
+                Excluir
+              </button>
+              <%= link_to "Ver Entregas", admin_packages_path(driver_id: motorista.id), class: "btn-ver-perfil", data: { turbo: false }, style: "flex: 1;" %>
+            </div>
+            
+            <div style="display: none; gap: 10px; width: 100%; flex-direction: column; background-color: #fef2f2; border: 1px solid #fca5a5; padding: 10px; border-radius: 8px;" id="driver-confirm-<%= motorista.id %>">
+              <span style="font-size: 0.8rem; color: #dc2626; font-weight: 600; text-align: center;">Deseja mesmo excluir?</span>
+              <div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
+                <button type="button" onclick="document.getElementById('driver-confirm-<%= motorista.id %>').style.display='none'; document.getElementById('driver-actions-<%= motorista.id %>').style.display='flex';" style="background-color: white; border: 1px solid #fca5a5; border-radius: 6px; cursor: pointer; padding: 8px 20px; font-weight: 600; color: #dc2626;">
+                  Não
+                </button>
+                <%= button_to "Sim", admin_driver_path(motorista), method: :delete, style: "background-color: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer; padding: 8px 20px; font-weight: 600;" %>
+              </div>
+            </div>
           </div>
         </div>
       <% end %>

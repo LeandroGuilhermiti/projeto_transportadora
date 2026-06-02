@@ -59,12 +59,19 @@
       <div class="ne-row-2">
         <div>
           <label class="ne-label">Peso (kg)</label>
-          <%= form.number_field :peso, class: "ne-input", placeholder: "0.00", step: "0.01" %>
+          <%= form.number_field :peso, class: "ne-input", placeholder: "0.00", step: "0.01", id: "package_peso" %>
         </div>
         <div>
           <label class="ne-label">Dimensões (LxAxP cm)</label>
           <%= form.text_field :dimensoes, class: "ne-input", placeholder: "30x20x15" %>
         </div>
+      </div>
+
+      <!-- Valor Estimado da Entrega -->
+      <div class="ne-field-full" style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 15px; margin-bottom: 20px;">
+        <label class="ne-label" style="margin-bottom: 5px;">Valor Estimado da Entrega</label>
+        <div style="font-size: 1.5rem; font-weight: 700; color: #10b981;" id="summary-total">R$ 0,00</div>
+        <p style="font-size: 0.8rem; color: #6b7280; margin-top: 5px; margin-bottom: 0;">O valor final pode variar dependendo do peso aferido no momento da coleta.</p>
       </div>
 
       <!-- Submit -->
@@ -75,3 +82,26 @@
 
   <% end %>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const pesoInput = document.getElementById("package_peso");
+    const summaryTotal = document.getElementById("summary-total");
+
+    function calcFrete() {
+      const peso = parseFloat(pesoInput?.value) || 0;
+      const base = 42.50;
+      const adicional = peso * 3.20;
+      const total = peso > 0 ? (base + adicional) : 0;
+      const fmt = (v) => "R$ " + v.toFixed(2).replace(".", ",");
+      if (summaryTotal) {
+        summaryTotal.textContent = fmt(total);
+      }
+    }
+
+    if (pesoInput) {
+      pesoInput.addEventListener("input", calcFrete);
+      calcFrete(); // Calcula inicialmente
+    }
+  });
+</script>
